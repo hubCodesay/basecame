@@ -103,15 +103,8 @@ class _MapTabState extends State<MapTab> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: ThemeColors.background,
                     // borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
                   child: Column(
                     children: [
@@ -151,15 +144,39 @@ class _MapTabState extends State<MapTab> {
                               onPressed: onFilterPhoto,
                               icon: Icons.camera_alt_outlined,
                               dropIcon: true,
+                              backgroundColor: ThemeColors.background,
+                              foregroundColor:ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
+                              borderRadius: 12,
+                              borderWidth: 7,
+                              // borderColor: ThemeColors.background,
                             ),
                             FilterButton(
                               onPressed: onFilterPoint,
                               icon: Icons.location_on_outlined,
+                              backgroundColor: ThemeColors.background,
+                              foregroundColor:ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
+                              fontWeight: FontWeight.w400,
+                              borderRadius: 12,
+                              // borderColor: ThemeColors.blackColor,
                               label: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text("Start from"),
-                                  Text("Within 30 km"),
+                                  Text(
+                                    "Start from",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: ThemeColors.greyColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Within 30 km",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: ThemeColors.greyColor,
+                                    ),
+                                  ),
                                 ],
                               ),
                               dropIcon: true,
@@ -167,6 +184,12 @@ class _MapTabState extends State<MapTab> {
                             FilterButton(
                               onPressed: onFilter,
                               icon: Icons.filter_list,
+                              iconColor: ThemeColors.blackColor,
+                              backgroundColor: ThemeColors.background,
+                              foregroundColor:ThemeColors.greyColor,
+                              fontWeight: FontWeight.w400,
+                              // borderColor: ThemeColors.blackColor,
+                              borderRadius: 12,
                               dropIcon: false,
                               label: Text("Filter"),
                             ),

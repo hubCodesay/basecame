@@ -19,6 +19,7 @@ class SearchBarWidget extends StatelessWidget {
         return SearchBar(
           controller: controller,
           hintText: hintText,
+          constraints: const BoxConstraints.tightFor(height: 44),
           leading: Padding(
             padding: const EdgeInsets.all(10),
             child: SvgPicture.asset(

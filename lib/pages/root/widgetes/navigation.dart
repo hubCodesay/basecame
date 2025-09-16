@@ -16,16 +16,17 @@ class MainNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            'assets/icons/map.svg',
-            width: 24,
-            height: 24,
-          ),
+          icon: Icon(Icons.map_outlined,   textDirection: TextDirection.rtl,),
           label: 'Map',
         ),
         // BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: 'Map'),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
+        BottomNavigationBarItem(
+
+          icon: SvgPicture.asset(
+            'assets/icons/chat.svg',
+            width: 24,
+            height: 24,
+          ),
           label: 'Chats',
         ),
         const BottomNavigationBarItem(
@@ -33,7 +34,7 @@ class MainNavigationBar extends StatelessWidget {
           label: 'Shop',
         ),
         const BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view_outlined),
+          icon: Icon(Icons.grid_view),
           label: 'Events',
         ),
         const BottomNavigationBarItem(

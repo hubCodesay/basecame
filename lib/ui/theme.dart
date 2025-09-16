@@ -61,7 +61,7 @@ final lightTheme = ThemeData(
         }
         return ThemeColors.primaryColor;
       }),
-      foregroundColor: WidgetStatePropertyAll(ThemeColors.background),
+      foregroundColor: WidgetStatePropertyAll(ThemeColors.silverColor),
       textStyle: WidgetStatePropertyAll(
         const TextStyle(
           fontSize: _buttonTextSize,
