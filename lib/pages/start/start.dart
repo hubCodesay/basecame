@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:basecam/app_path.dart';
@@ -73,11 +74,16 @@ class _LoadingPageState extends State<LoadingPage> with SingleTickerProviderStat
                 },
               ),
             ),
-            Image.asset(
-              "assets/startMap.png",
-              width: imageSize,
-              height: imageSize,
+            SvgPicture.asset(
+              'assets/icons/map.svg',
+              width: 96,
+              height: 96,
             ),
+            // Image.asset(
+            //   "assets/startMap.png",
+            //   width: imageSize,
+            //   height: imageSize,
+            // ),
           ],
         ),
       ),

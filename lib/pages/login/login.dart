@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     onGoogle,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 10),
                   _socialButton(
                     SvgPicture.asset(
                       'assets/icons/facebook.svg',
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     onFacebook,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 10),
                   _socialButton(
                     SvgPicture.asset(
                       'assets/icons/apple.svg',
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
-        child: SizedBox(width: 56, height: 56, child: Center(child: child)),
+        child: SizedBox(width: 60, height: 44, child: Center(child: child)),
       ),
     );
   }

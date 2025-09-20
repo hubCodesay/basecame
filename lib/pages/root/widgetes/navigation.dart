@@ -1,3 +1,4 @@
+import 'package:basecam/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -16,29 +17,98 @@ class MainNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.map_outlined,   textDirection: TextDirection.rtl,),
+          icon: SvgPicture.asset(
+            'assets/icons/map.svg',
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.greyColor,
+              BlendMode.srcIn,
+            ),
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/map.svg',
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.blackColor,
+              BlendMode.srcIn,
+            ),
+          ),
           label: 'Map',
         ),
-        // BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: 'Map'),
         BottomNavigationBarItem(
-
           icon: SvgPicture.asset(
             'assets/icons/chat.svg',
             width: 24,
             height: 24,
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.greyColor,
+              BlendMode.srcIn,
+            ),
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/chat.svg',
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.blackColor,
+              BlendMode.srcIn,
+            ),
           ),
           label: 'Chats',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.language),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/shop.svg',
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.greyColor,
+              BlendMode.srcIn,
+            ),
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/shop.svg',
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.blackColor,
+              BlendMode.srcIn,
+            ),
+          ),
           label: 'Shop',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/events.svg',
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.greyColor,
+              BlendMode.srcIn,
+            ),
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/events.svg',
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.blackColor,
+              BlendMode.srcIn,
+            ),
+          ),
           label: 'Events',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/profile.svg',
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.greyColor,
+              BlendMode.srcIn,
+            ),
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/profile.svg',
+            colorFilter: const ColorFilter.mode(
+              ThemeColors.blackColor,
+              BlendMode.srcIn,
+            ),
+          ),
           label: 'Profile',
         ),
       ],

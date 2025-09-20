@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FilterButton extends StatelessWidget {
   final VoidCallback onPressed;
-  final IconData icon;
+  final Widget icon;
   final Widget? label;
   final bool dropIcon;
   final double borderRadius;
@@ -27,7 +27,7 @@ class FilterButton extends StatelessWidget {
     this.iconColor,
     this.fontWeight,
     this.borderRadius = 8,
-    this.borderWidth = 5,
+    this.borderWidth = 2,
   });
 
   @override
@@ -44,8 +44,10 @@ class FilterButton extends StatelessWidget {
       ),
       onPressed: onPressed,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: iconColor ?? foregroundColor),
+          icon,
+          // Icon(, color: iconColor ?? foregroundColor),
           if (label != null) ...[
             SizedBox(width: 4),
             DefaultTextStyle(
@@ -62,7 +64,7 @@ class FilterButton extends StatelessWidget {
           if (dropIcon)
             Icon(
               Icons.keyboard_arrow_down,
-              color: iconColor ?? foregroundColor,
+              color: ThemeColors.greyColor,
             ),
         ],
       ),

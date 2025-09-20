@@ -1,5 +1,10 @@
 import 'dart:async';
+import 'package:basecam/app_path.dart';
+import 'package:basecam/pages/root/widgetes/product_card.dart';
+import 'package:basecam/pages/root/widgetes/product_card_with_nav.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:basecam/ui/theme.dart';
@@ -28,8 +33,7 @@ class _MapTabState extends State<MapTab> {
     tilt: 59.440717697143555,
     zoom: 19.151926040649414,
   );
-  
-  
+
   final TextEditingController _mapSearchController = TextEditingController();
   final FocusNode _mapSearchFocusNode = FocusNode();
   TextAlign _currentMapSearchTextAlign = TextAlign.center;
@@ -99,7 +103,6 @@ class _MapTabState extends State<MapTab> {
             /// Верхня панель (без Positioned)
             Column(
               children: [
-                // const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -132,35 +135,45 @@ class _MapTabState extends State<MapTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
 
                       /// Button Filter
                       IntrinsicHeight(
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             FilterButton(
                               onPressed: onFilterPhoto,
-                              icon: Icons.camera_alt_outlined,
+                              icon: SvgPicture.asset(
+                                'assets/icons/camera.svg',
+                                width: 24,
+                                height: 24,
+                              ),
+                              // icon: Icons.camera_alt_outlined,
                               dropIcon: true,
                               backgroundColor: ThemeColors.background,
-                              foregroundColor:ThemeColors.greyColor,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
                               iconColor: ThemeColors.blackColor,
                               borderRadius: 12,
-                              borderWidth: 7,
-                              // borderColor: ThemeColors.background,
                             ),
+                            const SizedBox(width: 4),
                             FilterButton(
                               onPressed: onFilterPoint,
-                              icon: Icons.location_on_outlined,
+                              icon: SvgPicture.asset(
+                                'assets/icons/location.svg',
+                                width: 24,
+                                height: 24,
+                              ),
                               backgroundColor: ThemeColors.background,
-                              foregroundColor:ThemeColors.greyColor,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
                               iconColor: ThemeColors.blackColor,
                               fontWeight: FontWeight.w400,
                               borderRadius: 12,
-                              // borderColor: ThemeColors.blackColor,
                               label: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
@@ -181,14 +194,19 @@ class _MapTabState extends State<MapTab> {
                               ),
                               dropIcon: true,
                             ),
+                            const SizedBox(width: 4),
                             FilterButton(
                               onPressed: onFilter,
-                              icon: Icons.filter_list,
-                              iconColor: ThemeColors.blackColor,
+                              icon: SvgPicture.asset(
+                                'assets/icons/filter.svg',
+                                width: 24,
+                                height: 24,
+                              ),
                               backgroundColor: ThemeColors.background,
-                              foregroundColor:ThemeColors.greyColor,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
                               fontWeight: FontWeight.w400,
-                              // borderColor: ThemeColors.blackColor,
                               borderRadius: 12,
                               dropIcon: false,
                               label: Text("Filter"),
@@ -205,93 +223,78 @@ class _MapTabState extends State<MapTab> {
             /// Нижня панель
             DraggableScrollableSheet(
               initialChildSize: 0.25,
-              minChildSize: 0.25,
+              minChildSize:
+                  0.1,
               maxChildSize: 0.8,
               builder: (context, scrollController) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
+                      top: Radius.circular(20),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, -2),
+                        color: Colors.black.withOpacity(
+                          0.15,
+                        ),
+                        blurRadius: 10,
+                        offset: const Offset(0, -3),
                       ),
                     ],
                   ),
-                  child: ListView(
-                    controller: scrollController,
+                  child: Column(
                     children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(8),
+                      Container(
+                        width: 40,
+                        height: 5,
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          bottom: 8,
+                        ),
+                        child: Text(
+                          "Nearby Locations",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
                         ),
                       ),
-                      const Text(
-                        "203 Locations",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
+                          itemCount: 5,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 16,
+                              ),
+                              child: ProductCardNav(
+                                onTap: () => context.push(AppPath.location.path),
+                                productName: "Awesome Place ${index + 1}",
+                                price: "${(index + 1) * 10} USD",
+                                tag: "Adventure",
+                                location: "Nearby, ${index * 2 + 1} km",
+                                timestamp: "Posted ${index + 1}h ago",
+                                imageUrl:
+                                    "https://picsum.photos/seed/${index + 100}/400/200",
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: const [
-                          Spacer(),
-                          Icon(Icons.star, size: 18, color: Colors.black),
-                          SizedBox(width: 4),
-                          Text("4.95 (3)"),
-                          SizedBox(width: 16),
-                          Icon(Icons.person, size: 18, color: Colors.black),
-                          SizedBox(width: 4),
-                          Text("48"),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        "Section title",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.timer_outlined,
-                            size: 16,
-                            color: Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            "3h 14m",
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                          const SizedBox(width: 16),
-                          const Text(
-                            "↔ 12.4 km",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(width: 16),
-                          const Text(
-                            "↗ 100 m",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
                       ),
                     ],
                   ),

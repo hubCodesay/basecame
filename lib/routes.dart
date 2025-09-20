@@ -1,3 +1,4 @@
+import 'package:basecam/pages/root/map/location/location.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,6 +26,10 @@ debugLogDiagnostics: true,
     GoRoute(
       path: AppPath.start.path,
       builder: (context, state) => const LoadingPage(),
+    ),
+    GoRoute(
+      path: AppPath.location.path,
+      builder: (context, state) => const LocationScreen(),
     ),
     GoRoute(
       path: AppPath.onboard.path,

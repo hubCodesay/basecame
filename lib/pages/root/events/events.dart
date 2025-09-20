@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
 import 'package:basecam/pages/root/widgetes/event_card.dart';
@@ -187,7 +188,11 @@ class _EventsTabState extends State<EventsTab> {
                       children: [
                         FilterButton(
                           onPressed: _handleFilterPressed,
-                          icon: Icons.filter_list,
+                          icon: SvgPicture.asset(
+                            'assets/icons/filter.svg',
+                            width: 24,
+                            height: 24,
+                          ),
                           dropIcon: false,
                         ),
                       ],

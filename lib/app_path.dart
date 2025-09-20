@@ -18,6 +18,8 @@ enum AppPath {
   rootProfile('/profile'),
   /// Екран з вибіром логуванням
   login('/login'),
+  /// Локейшен
+  location('/map/location'),
   /// Екран з вибіром логуванням
   registration('/registration'),
   /// Екран з налаштуваннями
