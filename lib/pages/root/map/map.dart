@@ -283,7 +283,8 @@ class _MapTabState extends State<MapTab> {
                               ),
                               child: ProductCardNav(
                                 onTap: () => context.push(AppPath.location.path),
-                                productName: "Awesome Place ${index + 1}",
+                                // onTap: () => context.push(AppPath.locationDay.path),
+                              productName: "Awesome Place ${index + 1}",
                                 price: "${(index + 1) * 10} USD",
                                 tag: "Adventure",
                                 location: "Nearby, ${index * 2 + 1} km",

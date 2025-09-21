@@ -20,6 +20,8 @@ enum AppPath {
   login('/login'),
   /// Локейшен
   location('/map/location'),
+  /// Локейшен день
+  locationDay('/map/location_day'),
   /// Екран з вибіром логуванням
   registration('/registration'),
   /// Екран з налаштуваннями

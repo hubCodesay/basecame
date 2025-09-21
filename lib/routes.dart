@@ -1,4 +1,5 @@
 import 'package:basecam/pages/root/map/location/location.dart';
+import 'package:basecam/pages/root/map/location_day/location_day.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +31,10 @@ debugLogDiagnostics: true,
     GoRoute(
       path: AppPath.location.path,
       builder: (context, state) => const LocationScreen(),
+    ),
+    GoRoute(
+      path: AppPath.locationDay.path,
+      builder: (context, state) => const LocationDay(),
     ),
     GoRoute(
       path: AppPath.onboard.path,
