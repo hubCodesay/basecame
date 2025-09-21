@@ -22,7 +22,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _height = MediaQuery.of(context).size.width/2 * 0.8;
+    final height = MediaQuery.of(context).size.width/2 * 0.8;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,13 +34,13 @@ class ProductCard extends StatelessWidget {
           child: (imageUrl != null && imageUrl!.isNotEmpty)
               ? Image.network(
             imageUrl!,
-            height: _height,
+            height: height,
             width: double.infinity,
             fit: BoxFit.cover,
             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
               if (loadingProgress == null) return child;
               return Container(
-                height: _height,
+                height: height,
                 alignment: Alignment.center,
                 child: CircularProgressIndicator(
                   value: loadingProgress.expectedTotalBytes != null
@@ -51,7 +51,7 @@ class ProductCard extends StatelessWidget {
             },
           )
               : Container(
-            height: _height,
+            height: height,
             width: double.infinity,
             color: Colors.grey.shade200,
             alignment: Alignment.center,

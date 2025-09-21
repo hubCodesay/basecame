@@ -145,7 +145,7 @@ class ShopTab extends StatelessWidget {
                         price: "\$${(index + 1) * 10}/day",
                         tag: "For rent",
                         location: "Berlin",
-                        timestamp: "Yesterday 18:2${index}",
+                        timestamp: "Yesterday 18:2$index",
                       ),
                     );
                   },
