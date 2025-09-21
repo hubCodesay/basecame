@@ -8,7 +8,7 @@ import 'package:phone_form_field/phone_form_field.dart';
 import 'package:basecam/ui/theme.dart';
 
 class ProfileEditPage extends StatefulWidget {
-  const ProfileEditPage({Key? key}) : super(key: key);
+  const ProfileEditPage({super.key});
 
   @override
   _ProfileEditPageState createState() => _ProfileEditPageState();
@@ -189,7 +189,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         ),
                         onChanged: (nsn) {
                           final currentIso =
-                              phoneController.value?.isoCode ?? IsoCode.UA;
+                              phoneController.value.isoCode ?? IsoCode.UA;
                           phoneController.value = PhoneNumber(
                             isoCode: currentIso,
                             nsn: phoneFormatter.getUnmaskedText(),
@@ -242,10 +242,10 @@ class _DateInputFormatter extends TextInputFormatter {
     var text = newValue.text;
 
     if (text.length >= 3 && text[2] != '/') {
-      text = text.substring(0, 2) + '/' + text.substring(2);
+      text = '${text.substring(0, 2)}/${text.substring(2)}';
     }
     if (text.length >= 6 && text[5] != '/') {
-      text = text.substring(0, 5) + '/' + text.substring(5);
+      text = '${text.substring(0, 5)}/${text.substring(5)}';
     }
 
     return newValue.copyWith(

@@ -45,6 +45,10 @@ dependencies:
   phone_form_field: ^10.0.11+13
   settings_ui: ^2.0.2
   flutter_settings_ui: ^3.0.1
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  cloud_firestore: ^6.0.1
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

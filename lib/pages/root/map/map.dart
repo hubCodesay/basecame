@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:basecam/app_path.dart';
-import 'package:basecam/pages/root/widgetes/product_card.dart';
 import 'package:basecam/pages/root/widgetes/product_card_with_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';

@@ -8,13 +8,13 @@ class Rating extends StatelessWidget {
   final int rating;
 
   const Rating({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.date,
     required this.tags,
     this.rating = 5,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

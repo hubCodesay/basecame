@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class SupportRequestPage extends StatefulWidget {
-  const SupportRequestPage({Key? key}) : super(key: key);
+  const SupportRequestPage({super.key});
 
   @override
   State<SupportRequestPage> createState() => _SupportRequestPageState();

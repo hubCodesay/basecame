@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:basecam/pages/root/root.dart';
-import 'package:basecam/pages/start/start.dart';
 import 'package:basecam/routes.dart';
 import 'package:basecam/ui/theme.dart';
 
