@@ -1,8 +1,12 @@
+import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
+import 'package:basecam/pages/root/widgetes/info_box.dart';
+import 'package:basecam/pages/root/widgetes/save_nav_bottom_bar.dart';
+import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:basecam/pages/root/widgetes/image_network.dart';
 import 'package:basecam/ui/theme.dart';
+import 'package:go_router/go_router.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -16,10 +20,16 @@ class _LocationScreenState extends State<LocationScreen> {
   final String category = "Intermediate";
   final String rating = "4.95 (3)";
   final String participantCount = "48";
-  final String title = "Location name";
+  final String title = "Location name Location name";
   final String date = "14.05";
-  final String description = "Description text about something on this page that can be long or short. It can be pretty long and expand …";
+  final String description =
+      "Description text about something on this page that can be long or short. It can be pretty long and expand …";
   final String distance = "13.1 km from Somename District";
+  bool _isBookmarked = false;
+  // Color get appBarIconColor => Theme.of(context).colorScheme.onSurface;
+
+  // --- Стан для Switch ---
+  bool _isSavedOffline = false;
 
   @override
   void initState() {
@@ -28,269 +38,454 @@ class _LocationScreenState extends State<LocationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Визначимо текстові стилі тут для легшого доступу та консистентності
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 180,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: ThemeColors.background,
+        elevation: 0,
+        leading: ArrowButtonBack(onPressed: () => context.pop()),
+        actions: <Widget>[
+          IconButton(
+            icon: SvgPicture.asset(
+              _isBookmarked
+                  ? 'assets/icons/bookmark.svg' // Іконка для стану "в закладках"
+                  : 'assets/icons/bookmark.svg', // Іконка для стану "не в закладках"
+              width: 24,
+              height: 24,
+            ),
+            tooltip: _isBookmarked ? "Remove bookmark" : "Add bookmark",
+            onPressed: () {
+              setState(() {
+                _isBookmarked = !_isBookmarked;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    _isBookmarked
+                        ? "Location bookmarked"
+                        : "Location bookmark removed",
+                  ),
+                  duration: const Duration(seconds: 2),
                 ),
-              ),
-
-              /// --- Контент картки ---
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ThemeColors.greyColor,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            category,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: ThemeColors.background,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.star,
-                          size: 18,
-                          color: ThemeColors.blackColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(rating),
-                        const SizedBox(width: 12),
-                        Image.asset(
-                          'assets/icons/person.png',
-                          width: 24,
-                          height: 24,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(participantCount),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    /// Заголовок + час у бейджі
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              SvgPicture.asset(
-                                'assets/icons/calendar.svg',
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                                width: 16,
-                                height: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              const Text(
-                                "14.05",
-                                style: TextStyle(color: Colors.white, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-
-                    /// Лінія №1
-                    const Divider(height: 1, color: Colors.black12),
-                    const SizedBox(height: 8),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/timer.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              "3h 14m",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/timer.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              "12.4 km",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/timer.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            SizedBox(width: 4),
-                            Text("100 m", style: TextStyle(color: Colors.black54)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    /// 🔹 Лінія №2
-                    const Divider(height: 1, color: Colors.black12),
-                    const SizedBox(height: 8),
-
-                    /// Заголовок TODO: для Profile
-                    // Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    // children: [
-                    //   Expanded(
-                    //     child: Text(
-                    //       title,
-                    //       style: const TextStyle(
-                    //         fontWeight: FontWeight.bold,
-                    //         fontSize: 16,
-                    //       ),
-                    //       maxLines: 2,
-                    //       overflow: TextOverflow.ellipsis,
-                    //     ),
-                    //   ),
-                    // const SizedBox(
-                    //   width: 80,
-                    // ), // Відступ між заголовком та датою
-                    // Text(
-                    //   date,
-                    //   style: const TextStyle(
-                    //     color: Colors.black54,
-                    //     fontSize: 12,
-                    //   ),
-                    // ),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 8),
-
-                    /// Опис
-                    Text(
-                      description,
-                      style: const TextStyle(color: Colors.black54, fontSize: 14),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 10),
-
-                    /// Footer
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "assets/icons/cursor.png",
-                              width: 16,
-                              height: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              distance,
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        InkWell(
-                          onTap: (){},
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                "Learn more",
-                                style: TextStyle(
-                                  color: ThemeColors.blackColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                color: ThemeColors.blackColor,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              );
+            },
           ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      // --- Нижня панель з кнопками ---
+      bottomNavigationBar: SaveNavBottomBar(onSave: () {}, onNavigate: () {}),
+      // --- Основний вміст екрану ---
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- Верхня частина з картою та кнопками поверх неї ---
+            Stack(
+              children: [
+                Image.asset(
+                  imageUrl,
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 300,
+                      color: Colors.grey[300],
+                      child: Center(),
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            // --- Секція з детальною інформацією ---
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Назва локації ---
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          maxLines: 2,
+                          title,
+                          style: textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        style: IconButton.styleFrom(
+                          backgroundColor: ThemeColors.primaryColor,
+                        ),
+                        icon: SvgPicture.asset(
+                          'assets/icons/camera.svg',
+                          width: sizeIcon,
+                          height: sizeIcon,
+                          colorFilter: ColorFilter.mode(
+                            ThemeColors.primaryTextColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // --- Категорія та дистанція ---
+                  Row(
+                    children: [
+                      TagWidget(text: category),
+                      const SizedBox(width: 12),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Transform.rotate(
+                        angle: 30 * 3.1415927 / 180,
+                        child: Icon(
+                          Icons.navigation_outlined,
+                          size: 16,
+                          color: ThemeColors.greyColor,
+                        ),
+                      ),
+                      const SizedBox(width: horizontalOffsetSpace),
+                      Expanded(
+                        // Дозволяє тексту дистанції переноситися, якщо він довгий
+                        child: Text(
+                          distance,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: ThemeColors.greyColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: vertSpace),
+                  // --- Опис ---
+                  Text(
+                    description,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: ThemeColors.greyColor,
+                    ),
+                  ),
+                  const SizedBox(height: vertSpace),
+
+                  // --- Рейтинг і учасники ---
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star_rounded,
+                        size: 20,
+                        color: ThemeColors.primaryColor,
+                      ),
+                      const SizedBox(width: horizontalOffsetSpace),
+                      Text(
+                        rating,
+                        // style: textTheme.bodyMedium?.copyWith(
+                        //   fontWeight: FontWeight.w500,
+                        // ),
+                      ),
+                      const SizedBox(width: 16), // Збільшив відступ
+                      SvgPicture.asset(
+                        'assets/icons/profile.svg',
+                        width: sizeIcon,
+                        height: sizeIcon,
+                      ),
+                      const SizedBox(width: 4),
+                      Text("$participantCount", style: textTheme.bodyMedium),
+                    ],
+                  ),
+
+                  /// 🔹 Лінія №2
+                  const SizedBox(height: 8),
+                  const Divider(height: 1, color: ThemeColors.greyColor),
+                  const SizedBox(height: 8),
+                  // --- Характеристики ---
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InfoBox(
+                        asset: 'assets/icons/timer.svg',
+                          text: "3h 14m",
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: InfoBox(
+                          asset: 'assets/icons/vector.svg',
+                          text: "12.4 km",
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: InfoBox(
+                          asset: 'assets/icons/diametr.svg',
+                          text: "3h 14m",
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: InfoBox(
+                          asset: 'assets/icons/up.svg',
+                          text: "100 m",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // --- Save offline ---
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/download.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                      SizedBox(width: horizontalSpace),
+                      Expanded(
+                        child: Text(
+                          "Save offline",
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      // Switch(
+                      //   value: _isSavedOffline,
+                      //   // activeColor:
+                      //   //     colorScheme.primary, // Колір активного стану
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       _isSavedOffline = value;
+                      //     });
+                      //     // TODO: Реалізувати реальну логіку збереження/видалення з офлайну
+                      //     ScaffoldMessenger.of(context).showSnackBar(
+                      //       SnackBar(
+                      //         content: Text(
+                      //           _isSavedOffline
+                      //               ? "Location saved offline"
+                      //               : "Location removed from offline",
+                      //         ),
+                      //         duration: const Duration(seconds: 2),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          switchTheme: SwitchThemeData(
+                            overlayColor: MaterialStateProperty.all(Colors.transparent),
+                          ),
+                        ),
+                        child: Switch(
+                          value: _isSavedOffline,
+                          activeColor: ThemeColors.background, // колір самого "повзунка" у активному стані
+                          activeTrackColor: ThemeColors.switchColor, // колір треку коли увімкнено
+                          inactiveThumbColor: ThemeColors.background, // колір повзунка у вимкненому стані
+                          inactiveTrackColor: ThemeColors.switchColor, // колір треку у вимкненому стані
+                          onChanged: (value) {
+                            setState(() {
+                              _isSavedOffline = value;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  _isSavedOffline
+                                      ? "Location saved offline"
+                                      : "Location removed from offline",
+                                ),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ), // Відступ після секції "Save offline"
+                  // --- Waypoints (Приклад, якщо вони є) ---
+                  Text(
+                    "Waypoints",
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Якщо є список вейпоінтів, можна використати ListView.builder або Column
+                  // Нижче приклад одного статичного вейпоінта
+                  if (true) // Замініть на умову, якщо вейпоінти можуть бути відсутні
+                    _buildWaypointItem(
+                      context: context,
+                      icon: Icons.flag_outlined,
+                      title: "Starting Point",
+                      subtitle: "Main entrance of the park",
+                      isFirst: true,
+                    ),
+                  if (true) // Приклад другого вейпоінта
+                    _buildWaypointItem(
+                      context: context,
+                      icon: Icons.location_on_outlined,
+                      title: "Scenic Viewpoint",
+                      subtitle: "Offers a great panoramic view",
+                    ),
+                  if (true) // Приклад останнього вейпоінта
+                    _buildWaypointItem(
+                      context: context,
+                      icon: Icons.sports_score_outlined,
+                      title: "Destination",
+                      subtitle: "End of the trail",
+                      isLast: true,
+                    ),
+
+                  // Якщо вейпоінтів немає, можна показати відповідне повідомлення:
+                  // if (waypoints.isEmpty)
+                  //   Padding(
+                  //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  //     child: Text(
+                  //       "No waypoints available for this location.",
+                  //       style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  //     ),
+                  //   ),
+                  const SizedBox(
+                    height: 20,
+                  ), // Відступ в кінці контенту перед кінцем SingleChildScrollView
+                  // --- Можливо, ще якісь секції ---
+                  // Наприклад, "Related Locations", "User Reviews", "Photos" і т.д.
+                  // Text(
+                  //   "User Reviews",
+                  //   style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  // ),
+                  // const SizedBox(height: 12),
+                  // ... віджети для відгуків ...
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
+  } // Кінець методу build
+
+  // --- Допоміжні віджети (поза методом build, але всередині класу _LocationScreenState) ---
+
+  Widget _circleButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.all(
+        4,
+      ), // Невеликий відступ, щоб тінь не обрізалась
+      decoration: BoxDecoration(
+        color: colorScheme.surface, // Використовуємо колір поверхні з теми
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: Icon(
+          icon,
+          size: 22,
+          color: colorScheme.onSurface,
+        ), // Колір іконки з теми
+        onPressed: onPressed,
+        splashRadius: 24,
+      ),
+    );
   }
-}
+
+  // Допоміжний віджет для елемента списку Waypoint
+  Widget _buildWaypointItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Лінія зверху, якщо не перший елемент
+              if (!isFirst)
+                Container(
+                  width: 2,
+                  height: 12, // Висота лінії
+                  color: colorScheme.outline.withOpacity(0.5),
+                ),
+              Icon(icon, size: 24, color: colorScheme.primary),
+              // Лінія знизу, якщо не останній елемент
+              if (!isLast)
+                Container(
+                  width: 2,
+                  height: 36, // Висота лінії, щоб дотягнутися до наступного
+                  color: colorScheme.outline.withOpacity(0.5),
+                ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!isFirst)
+                  const SizedBox(height: 12), // Синхронізація з верхньою лінією
+                Text(
+                  title,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                if (!isLast)
+                  const SizedBox(height: 12), // Синхронізація з нижньою лінією
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+} // Кінець класу _LocationScreenState
+

@@ -1,3 +1,4 @@
+import 'package:basecam/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -180,6 +181,7 @@ class _EventsTabState extends State<EventsTab> {
                     ),
                   ),
                   SizedBox(width: 8),
+
                   /// Button Filter
                   IntrinsicHeight(
                     child: Row(
@@ -187,6 +189,8 @@ class _EventsTabState extends State<EventsTab> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         FilterButton(
+                          backgroundColor: ThemeColors.background,
+                          showBorder: false,
                           onPressed: _handleFilterPressed,
                           icon: SvgPicture.asset(
                             'assets/icons/filter.svg',
@@ -217,6 +221,10 @@ class _EventsTabState extends State<EventsTab> {
                 itemCount: 3,
                 itemBuilder: (context, index) {
                   return EventCard(
+                    // imageUrl: Image.asset(
+                    //     "assets/pexels.jpg",
+                    //     fit: BoxFit.cover,
+                    //   ),
                     imageUrl: "https://picsum.photos/400/200?random=$index",
                     category: "Intermediate",
                     rating: "4.95 (3)",

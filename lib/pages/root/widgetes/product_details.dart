@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ProductDetails extends StatelessWidget {
   final String? productName;
@@ -32,7 +33,12 @@ class ProductDetails extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Icon(Icons.bookmark_outline, size: 24),
+              SvgPicture.asset(
+                'assets/icons/bookmark.svg',
+                width: 24,
+                height: 24,
+              ),
+              // const Icon(Icons.bookmark_outline, size: 24),
             ],
           ),
           const SizedBox(height: 4),

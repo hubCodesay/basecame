@@ -1,9 +1,6 @@
-import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
-import 'package:basecam/ui/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:basecam/pages/root/chats/chats_details.dart';
+import 'package:basecam/pages/root/chats/chats_details.dart'; // Переконайтеся, що цей імпорт потрібен
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 
 class ChatsTab extends StatefulWidget {
   const ChatsTab({super.key});
@@ -19,6 +16,7 @@ class _ChatsTabState extends State<ChatsTab> {
   int _currentPage = 0;
   final int _itemsPerPage = 15;
 
+  // Кількість закріплених чатів
   final int _numberOfBookmarkedItems = 2; // Рівно 2 закріплених
 
   @override
@@ -50,8 +48,11 @@ class _ChatsTabState extends State<ChatsTab> {
     List<Map<String, dynamic>> newItems = List.generate(_itemsPerPage, (i) {
       final overallIndex = _currentPage * _itemsPerPage + i;
       final isGroup = overallIndex % 5 == 0;
+
+      // Закріплені лише перші '_numberOfBookmarkedItems' елементи
       final bool isBookmarkedForThisItem =
           overallIndex < _numberOfBookmarkedItems;
+
       return {
         'id': overallIndex,
         'title': isGroup ? "Group Chat $overallIndex" : "Chat $overallIndex",
@@ -60,6 +61,7 @@ class _ChatsTabState extends State<ChatsTab> {
         'isBookmarked': isBookmarkedForThisItem,
       };
     });
+
     setState(() {
       _chatDataList.addAll(newItems);
       _isLoading = false;
@@ -73,15 +75,13 @@ class _ChatsTabState extends State<ChatsTab> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: ArrowButtonBack(onPressed: () => Navigator.pop(context)),
-        // FilterButton(onPressed: () => Navigator.pop(context)),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
-        title: Text(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
           "Active chats",
-          style: Theme.of(context).textTheme.titleMedium,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -89,40 +89,46 @@ class _ChatsTabState extends State<ChatsTab> {
         children: [
           const Divider(
             height: 1,
-            thickness: 1.0,
-            color: ThemeColors.silverColor,
-            indent: 16,
-            endIndent: 16,
+            thickness: 1,
+            color: Colors.grey,
           ),
           Expanded(
             child: ListView.separated(
               controller: _scrollController,
               itemCount: _chatDataList.length + (_isLoading ? 1 : 0),
               separatorBuilder: (context, index) {
-                if (index >= _chatDataList.length - 1) {
-                  return const SizedBox.shrink(); // Немає розділювача після останнього елемента або перед індикатором
+                if (index >= _chatDataList.length - 1 && _isLoading) {
+                  return const SizedBox.shrink();
+                }
+                if (_chatDataList.isEmpty ||
+                    index >= _chatDataList.length - 1) {
+                  return const Divider(
+                      height: 1, thickness: 0.5, color: Colors.grey);
                 }
 
                 final currentChat = _chatDataList[index];
                 final nextChat = _chatDataList[index + 1];
-                final bool currentChatIsBookmarked = currentChat['isBookmarked'] as bool;
-                final bool nextChatIsBookmarked = nextChat['isBookmarked'] as bool;
+                final bool currentChatIsBookmarked =
+                currentChat['isBookmarked'] as bool;
+                final bool nextChatIsBookmarked =
+                nextChat['isBookmarked'] as bool;
 
-                // --- 2. ОСОБЛИВА ЛІНІЯ МІЖ ЗАКРІПЛЕНИМИ ТА НЕЗАКРІПЛЕНИМИ ---
-                // Ставиться, якщо поточний чат закріплений, а наступний - ні,
-                // і поточний чат є останнім із закріплених.
                 if (currentChatIsBookmarked &&
                     !nextChatIsBookmarked &&
                     index == _numberOfBookmarkedItems - 1) {
                   return const Divider(
                     height: 1,
-                    thickness: 1.0,
-                    color: ThemeColors.silverColor,
+                    thickness: 2.0,
+                    color: Colors.red,
                     indent: 16,
                     endIndent: 16,
                   );
                 }
-                return const SizedBox.shrink();
+                return const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: Colors.grey,
+                );
               },
               itemBuilder: (context, index) {
                 if (index == _chatDataList.length && _isLoading) {
@@ -160,7 +166,8 @@ class _ChatsTabState extends State<ChatsTab> {
   }
 }
 
-class ChatTile extends StatelessWidget {
+// ChatTile тепер StatefulWidget
+class ChatTile extends StatefulWidget {
   final String title;
   final String subtitle;
   final bool isGroup;
@@ -173,21 +180,41 @@ class ChatTile extends StatelessWidget {
     required this.subtitle,
     this.isGroup = false,
     this.onTap,
-    required this.initialIsBookmarked,
+    this.initialIsBookmarked = false,
   });
+
+  @override
+  State<ChatTile> createState() => _ChatTileState();
+}
+
+class _ChatTileState extends State<ChatTile> {
+  late bool _isBookmarked;
+
+  @override
+  void initState() {
+    super.initState();
+    _isBookmarked = widget.initialIsBookmarked;
+  }
 
   @override
   Widget build(BuildContext context) {
     Widget? trailingWidget;
-    if (initialIsBookmarked) {
+
+    if (_isBookmarked) {
+      // Якщо чат закріплений, показуємо НЕІНТЕРАКТИВНУ іконку закладки
       trailingWidget = Padding(
-        padding: const EdgeInsets.only(right: 8.0),
+        padding: const EdgeInsets.only(right: 8.0), // Відступ для іконки
         child: SvgPicture.asset(
           'assets/icons/bookmark_filled.svg',
+          // Використовуйте іконку для ЗАПОВНЕНОЇ закладки
+          // Або ваш 'assets/icons/bookmark.svg', якщо він виглядає як заповнений
+          width: 24,
           height: 24,
+          // colorFilter: ColorFilter.mode(Colors.blue, BlendMode.srcIn), // Якщо потрібно змінити колір
         ),
       );
     }
+    // Якщо _isBookmarked == false, trailingWidget залишається null (нічого не буде в trailing)
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -197,17 +224,13 @@ class ChatTile extends StatelessWidget {
       ),
       title: Row(
         children: [
-          if (isGroup) ...[
-            SvgPicture.asset(
-              'assets/icons/group.svg',
-              height: 24,
-            ),
-            // const Icon(Icons.group, size: 16, color: Colors.black),
+          if (widget.isGroup) ...[
+            const Icon(Icons.group, size: 16, color: Colors.black),
             const SizedBox(width: 4),
           ],
           Expanded(
             child: Text(
-              title,
+              widget.title,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.black,
@@ -218,13 +241,14 @@ class ChatTile extends StatelessWidget {
         ],
       ),
       subtitle: Text(
-        subtitle,
+        widget.subtitle,
         style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: trailingWidget,
-      onTap: onTap,
+      // Встановлюємо визначений trailingWidget
+      onTap: widget.onTap,
     );
   }
 }

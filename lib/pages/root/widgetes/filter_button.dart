@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FilterButton extends StatelessWidget {
   final VoidCallback onPressed;
-  final Widget icon;
+  final Widget? icon;
   final Widget? label;
   final bool dropIcon;
   final double borderRadius;
@@ -14,11 +14,12 @@ class FilterButton extends StatelessWidget {
   final double borderWidth;
   final Color? iconColor;
   final FontWeight? fontWeight;
+  final bool showBorder;
 
   const FilterButton({
     super.key,
     required this.onPressed,
-    required this.icon,
+    this.icon,
     this.label,
     required this.dropIcon,
     this.backgroundColor,
@@ -28,6 +29,7 @@ class FilterButton extends StatelessWidget {
     this.fontWeight,
     this.borderRadius = 8,
     this.borderWidth = 2,
+    this.showBorder = true,
   });
 
   @override
@@ -36,38 +38,45 @@ class FilterButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
-        side: borderColor != null ? BorderSide(color: borderColor!, width: borderWidth) : null,
+        side: showBorder
+            ? (borderColor != null
+            ? BorderSide(color: borderColor!, width: borderWidth)
+            : null)
+            : BorderSide.none,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       ),
       onPressed: onPressed,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          icon,
-          // Icon(, color: iconColor ?? foregroundColor),
+          if (icon != null) icon!,
           if (label != null) ...[
             SizedBox(width: 4),
             DefaultTextStyle(
               style: TextStyle(
                 fontWeight: fontWeight ?? FontWeight.normal,
                 color: foregroundColor,
+                fontSize: 14,
+                // height: 1.4,
               ),
               child: label!,
             ),
             SizedBox(width: 4),
             // ?label,
           ],
-          // if (label != null) SizedBox(width: 4),
           if (dropIcon)
             Icon(
               Icons.keyboard_arrow_down,
               color: ThemeColors.greyColor,
+              size: 22,
             ),
         ],
       ),
     );
   }
 }
+

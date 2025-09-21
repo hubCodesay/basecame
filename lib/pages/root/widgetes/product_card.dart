@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'product_details.dart';
 
 class ProductCard extends StatelessWidget {
@@ -54,6 +55,11 @@ class ProductCard extends StatelessWidget {
             width: double.infinity,
             color: Colors.grey.shade200,
             alignment: Alignment.center,
+            // child: SvgPicture.asset(
+            //   'assets/icons/bookmark.svg',
+            //   width: 24,
+            //   height: 24,
+            // ),
             child: Icon(Icons.image_outlined, size: 40, color: Colors.grey.shade400),
           ),
         ),

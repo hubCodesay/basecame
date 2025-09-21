@@ -79,8 +79,8 @@ class EventCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(rating),
                     const SizedBox(width: 12),
-                    Image.asset(
-                      'assets/icons/person.png',
+                    SvgPicture.asset(
+                      'assets/icons/profile.svg',
                       width: 24,
                       height: 24,
                     ),
@@ -129,7 +129,7 @@ class EventCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           const Text(
                             "14.05",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: ThemeColors.background, fontSize: 14),
                           ),
                         ],
                       ),
@@ -139,7 +139,7 @@ class EventCard extends StatelessWidget {
                 const SizedBox(height: 3),
 
                 /// Лінія №1
-                const Divider(height: 1, color: Colors.black12),
+                const Divider(height: 1, color: ThemeColors.greyColor),
                 const SizedBox(height: 8),
 
                 Row(
@@ -147,15 +147,16 @@ class EventCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Image.asset(
-                          'assets/icons/timer.png',
+                        SvgPicture.asset(
+                          'assets/icons/timer.svg',
                           width: 16,
                           height: 16,
+                          colorFilter: ColorFilter.mode(ThemeColors.greyColor, BlendMode.srcIn),
                         ),
                         const SizedBox(width: 4),
                         const Text(
                           "3h 14m",
-                          style: TextStyle(color: Colors.black54),
+                          style: TextStyle(color: ThemeColors.greyColor),
                         ),
                       ],
                     ),
@@ -163,15 +164,16 @@ class EventCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/icons/expand.png",
+                        SvgPicture.asset(
+                          'assets/icons/vector.svg',
                           width: 16,
                           height: 16,
+                          colorFilter: ColorFilter.mode(ThemeColors.greyColor, BlendMode.srcIn),
                         ),
                         const SizedBox(width: 4),
                         const Text(
                           "12.4 km",
-                          style: TextStyle(color: Colors.black54),
+                          style: TextStyle(color: ThemeColors.greyColor),
                         ),
                       ],
                     ),
@@ -179,52 +181,23 @@ class EventCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/icons/vector.png",
+                        SvgPicture.asset(
+                          'assets/icons/up.svg',
                           width: 16,
                           height: 16,
+                          colorFilter: ColorFilter.mode(ThemeColors.greyColor, BlendMode.srcIn),
                         ),
                         SizedBox(width: 4),
-                        Text("100 m", style: TextStyle(color: Colors.black54)),
+                        Text("100 m", style: TextStyle(color: ThemeColors.greyColor)),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: vertSpaceDefault),
 
                 /// 🔹 Лінія №2
-                const Divider(height: 1, color: Colors.black12),
-                const SizedBox(height: 8),
-
-                /// Заголовок TODO: для Profile
-                // Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                // children: [
-                //   Expanded(
-                //     child: Text(
-                //       title,
-                //       style: const TextStyle(
-                //         fontWeight: FontWeight.bold,
-                //         fontSize: 16,
-                //       ),
-                //       maxLines: 2,
-                //       overflow: TextOverflow.ellipsis,
-                //     ),
-                //   ),
-                // const SizedBox(
-                //   width: 80,
-                // ), // Відступ між заголовком та датою
-                // Text(
-                //   date,
-                //   style: const TextStyle(
-                //     color: Colors.black54,
-                //     fontSize: 12,
-                //   ),
-                // ),
-                //   ],
-                // ),
-                // const SizedBox(height: 8),
+                const Divider(height: 1, color: ThemeColors.greyColor),
+                const SizedBox(height: vertSpaceDefault),
 
                 /// Опис
                 Text(
@@ -243,8 +216,8 @@ class EventCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/icons/cursor.png",
+                        SvgPicture.asset(
+                          'assets/icons/cursor.svg',
                           width: 16,
                           height: 16,
                         ),

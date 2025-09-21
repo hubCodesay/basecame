@@ -1,9 +1,11 @@
+import 'package:basecam/pages/root/widgetes/filter_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:basecam/pages/root/shop/shop_camera.dart';
 import 'package:basecam/pages/root/widgetes/product_card.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
 import 'package:basecam/ui/theme.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ShopTab extends StatelessWidget {
   const ShopTab({super.key});
@@ -59,24 +61,66 @@ class ShopTab extends StatelessWidget {
                       ),
                     ),
 
-                    /// Filters
-                    Row(
-                      children: const [
-                        FilterChipWidget(
-                            label: "Filters", icon: Icons.filter_list),
-                        SizedBox(width: 8),
-                        FilterChipWidget(label: "Cameras", dropdown: true),
-                        SizedBox(width: 8),
-                        FilterChipWidget(label: "Within City", dropdown: true),
-                      ],
+                    /// Button Filter
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            FilterButton(
+                              onPressed: onFilter,
+                              icon: SvgPicture.asset(
+                                'assets/icons/filter.svg',
+                                width: 24,
+                                height: 24,
+                              ),
+                              dropIcon: false,
+                              backgroundColor: ThemeColors.background,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
+                              borderRadius: 12,
+                              label: Text("Filters"),
+                            ),
+                            const SizedBox(width: 4),
+                            FilterButton(
+                              onPressed: onAllCetegories,
+                              backgroundColor: ThemeColors.background,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
+                              fontWeight: FontWeight.w400,
+                              borderRadius: 12,
+                              dropIcon: true,
+                              label: Text("All cetegories"),
+                            ),
+                            const SizedBox(width: 4),
+                            FilterButton(
+                              onPressed: onWithinCountry,
+                              backgroundColor: ThemeColors.background,
+                              borderColor: ThemeColors.silverColor,
+                              foregroundColor: ThemeColors.greyColor,
+                              iconColor: ThemeColors.blackColor,
+                              fontWeight: FontWeight.w400,
+                              borderRadius: 12,
+                              dropIcon: true,
+                              label: Text("Within Country"),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
                     /// Results count
                     const Text(
                       "Found 493 results",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -86,7 +130,7 @@ class ShopTab extends StatelessWidget {
               /// Grid with items
               SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                      (context, index) {
+                  (context, index) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -122,39 +166,8 @@ class ShopTab extends StatelessWidget {
   }
 }
 
-class FilterChipWidget extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final bool dropdown;
+void onFilter() {}
 
-  const FilterChipWidget({
-    super.key,
-    required this.label,
-    this.icon,
-    this.dropdown = false,
-  });
+void onAllCetegories() {}
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: ThemeColors.greyColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) Icon(icon, size: 14, color: ThemeColors.blackColor),
-          if (icon != null) const SizedBox(width: 4),
-          Text(label),
-          if (dropdown) ...[
-            const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down, size: 24, color: ThemeColors.background),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
+void onWithinCountry() {}

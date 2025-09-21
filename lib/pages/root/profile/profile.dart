@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:basecam/app_path.dart';
@@ -138,7 +139,12 @@ class _ProfileTabState extends State<ProfileTab> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Icon(Icons.star, size: 22, color: ThemeColors.blackColor),
+                                SvgPicture.asset(
+                                  'assets/icons/favorites.svg',
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                // Icon(Icons.star, size: 22, color: ThemeColors.blackColor),
                                 const SizedBox(width: 6),
                                 const Text(
                                   "4.95",
@@ -184,7 +190,11 @@ class _ProfileTabState extends State<ProfileTab> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset('assets/icons/profile.png', width: 24, height: 24),
+                          SvgPicture.asset(
+                            'assets/icons/profile.svg',
+                            width: 24,
+                            height: 24,
+                          ),
                           SizedBox(width: 8),
                           Text('Profile'),
                         ],
@@ -207,7 +217,11 @@ class _ProfileTabState extends State<ProfileTab> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset('assets/icons/settings.png', width: 24, height: 24),
+                          SvgPicture.asset(
+                            'assets/icons/settings.svg',
+                            width: 24,
+                            height: 24,
+                          ),
                           SizedBox(width: 8),
                           Text('Settings'),
                         ],

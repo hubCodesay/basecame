@@ -23,7 +23,7 @@ class SearchBarWidget extends StatelessWidget {
           leading: Padding(
             padding: const EdgeInsets.all(10),
             child: SvgPicture.asset(
-              'assets/icons/map.svg',
+              'assets/icons/search.svg',
               width: 24,
               height: 24,
             ),
