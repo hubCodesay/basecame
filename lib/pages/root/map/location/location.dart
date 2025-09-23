@@ -33,11 +33,13 @@ class _LocationScreenState extends State<LocationScreen> {
   bool light0 = true;
   bool light1 = true;
 
-  List<Waypoint> _waypoints = [
+  final List<Waypoint> _waypoints = [
     Waypoint(
       icon: Icons.flag_outlined,
       title: 'DERWE',
-      subtitle: 'fgf dfdgd dfgdf gdfg',
+      titleIcon: SizedBox(child: Image.asset("assets/pexels.jpg")),
+      subtitle:
+          'Description text about something on this page that can be long or short. It can be pretty long and explaining information about the',
     ),
     Waypoint(
       icon: Icons.location_on_outlined,
@@ -48,6 +50,13 @@ class _LocationScreenState extends State<LocationScreen> {
       icon: Icons.sports_score_outlined,
       title: 'Destination',
       subtitle: 'End of the trail',
+    ),
+    Waypoint(
+      icon: Icons.flag_outlined,
+      title: 'DERWE',
+      titleIcon: SizedBox(child: Image.asset("assets/pexels.jpg")),
+      subtitle:
+      'Description text about something on this page that can be long or short. It can be pretty long and explaining information about the',
     ),
   ];
 
@@ -328,9 +337,7 @@ class _LocationScreenState extends State<LocationScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   // --- Waypoints section ---
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

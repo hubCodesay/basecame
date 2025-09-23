@@ -5,9 +5,17 @@ import 'package:flutter_svg/svg.dart';
 class Waypoint {
   final IconData icon;
   final String title;
+  final Widget? titleIcon;
   final String subtitle;
+  final String distance;
 
-  Waypoint({required this.icon, required this.title, required this.subtitle});
+  Waypoint({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.titleIcon,
+    this.distance = "0 km",
+  });
 }
 
 class Waypoints extends StatelessWidget {
@@ -26,41 +34,55 @@ class Waypoints extends StatelessWidget {
           icon: wp.icon,
           title: wp.title,
           subtitle: wp.subtitle,
+          titleIcon: wp.titleIcon,
           isLast: isLast,
+          distance: wp.distance,
         );
       }).toList(),
     );
   }
 }
 
-
 class _WaypointItem extends StatelessWidget {
   final IconData icon;
   final String title;
+  final Widget? titleIcon;
   final String subtitle;
+  final String distance;
   final bool isLast;
 
   const _WaypointItem({
     required this.icon,
     required this.title,
+    this.titleIcon,
     required this.subtitle,
+    required this.distance,
     this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// ліва колонка з кнопкою та лінією
           Column(
             children: [
               IconButton(
                 onPressed: () {},
                 style: IconButton.styleFrom(
                   backgroundColor: ThemeColors.primaryColor,
-                  padding: const EdgeInsets.only(top: 5, left: 7, right: 5, bottom: 5),
+                  padding: const EdgeInsets.only(
+                    top: 5,
+                    left: 7,
+                    right: 5,
+                    bottom: 5,
+                  ),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -74,32 +96,80 @@ class _WaypointItem extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 4),
+
+              /// 🔹 Текст під іконкою
+              Text(
+                distance,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
               if (!isLast)
                 Builder(
                   builder: (context) {
-                    // обчислюємо висоту під текст
                     final textHeight = _calculateTextHeight(
                       context,
                       title,
+                      titleIcon,
                       subtitle,
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     );
                     return SizedBox(
                       height: textHeight > 0 ? textHeight : 0,
-                      child: DashedLine(color: Colors.grey.shade400),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: DashedLine(color: ThemeColors.switchColor),
+                      ),
+                      // child: DashedLine(color: Colors.grey.shade400),
                     );
                   },
                 ),
             ],
           ),
           const SizedBox(width: 12),
+
+          /// права колонка з текстом + картинка
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                /// Заголовок
+                Text(
+                  title,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: ThemeColors.blackColor,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle),
+
+                /// 🔹 Картинка (якщо є)
+                if (titleIcon != null) ...[
+                  // const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 140,
+                      child: FittedBox(fit: BoxFit.cover, child: titleIcon),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+
+                /// Сабтайтл
+                Text(
+                  subtitle,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: ThemeColors.greyColor,
+                    fontSize: 12,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
@@ -109,7 +179,12 @@ class _WaypointItem extends StatelessWidget {
   }
 
   double _calculateTextHeight(
-      BuildContext context, String title, String subtitle, TextStyle style) {
+    BuildContext context,
+    String title,
+    Widget? titleIcon,
+    String subtitle,
+    TextStyle style,
+  ) {
     final tpTitle = TextPainter(
       text: TextSpan(text: title, style: style),
       textDirection: TextDirection.ltr,
@@ -122,10 +197,15 @@ class _WaypointItem extends StatelessWidget {
       maxLines: null,
     )..layout(maxWidth: MediaQuery.of(context).size.width - 16 - 12 - 16);
 
-    return tpTitle.height + 4 + tpSubtitle.height;
+    double total = tpTitle.height + 4 + tpSubtitle.height;
+
+    if (titleIcon != null) {
+      total += 128; // приблизна висота для картинки + відступ
+    }
+
+    return total;
   }
 }
-
 
 class DashedLine extends StatelessWidget {
   final double dashWidth;
