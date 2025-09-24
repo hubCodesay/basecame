@@ -119,12 +119,12 @@ class _LocationScreenState extends State<LocationScreen> {
               children: [
                 Image.asset(
                   imageUrl,
-                  height: 300,
+                  height: 143,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      height: 300,
+                      height: 143,
                       color: Colors.grey[300],
                       child: Center(),
                     );

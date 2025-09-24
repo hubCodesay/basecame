@@ -222,8 +222,7 @@ class _MapTabState extends State<MapTab> {
             /// Нижня панель
             DraggableScrollableSheet(
               initialChildSize: 0.25,
-              minChildSize:
-                  0.1,
+              minChildSize: 0.1,
               maxChildSize: 0.8,
               builder: (context, scrollController) {
                 return Container(
@@ -234,9 +233,7 @@ class _MapTabState extends State<MapTab> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(
-                          0.15,
-                        ),
+                        color: Colors.black.withOpacity(0.15),
                         blurRadius: 10,
                         offset: const Offset(0, -3),
                       ),
@@ -247,9 +244,7 @@ class _MapTabState extends State<MapTab> {
                       Container(
                         width: 40,
                         height: 5,
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 10,
-                        ),
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(8),
@@ -272,19 +267,18 @@ class _MapTabState extends State<MapTab> {
                       Expanded(
                         child: ListView.builder(
                           controller: scrollController,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: 5,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: 16,
-                              ),
+                              padding: const EdgeInsets.only(bottom: 16),
                               child: ProductCardNav(
-                                onTap: () => context.push(AppPath.location.path),
-                                // onTap: () => context.push(AppPath.locationDay.path),
-                              productName: "Awesome Place ${index + 1}",
+                                onTap: () => context.push(
+                                  index.isOdd
+                                      ? AppPath.locationDay.path
+                                      : AppPath.location.path,
+                                ),
+                                productName: "Awesome Place ${index + 1}",
                                 price: "${(index + 1) * 10} USD",
                                 tag: "Adventure",
                                 location: "Nearby, ${index * 2 + 1} km",
