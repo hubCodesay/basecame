@@ -19,6 +19,7 @@ class InfoBoxHoriz extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -28,7 +29,7 @@ class InfoBoxHoriz extends StatelessWidget {
       child: Row(
         children: [
           ?iconWidget,
-          if (asset is String) SvgPicture.asset(asset!, width: 24, height: 24),
+          if (asset is String) SvgPicture.asset(asset!, width: sizeIcon, height: sizeIcon),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

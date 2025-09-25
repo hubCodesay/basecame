@@ -1,6 +1,9 @@
 import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
 import 'package:basecam/pages/root/widgetes/info_box.dart';
 import 'package:basecam/pages/root/widgetes/info_box_horiz.dart';
+import 'package:basecam/pages/root/widgetes/info_box_photo.dart';
+import 'package:basecam/pages/root/widgetes/rating_list.dart';
+import 'package:basecam/pages/root/widgetes/ratings.dart';
 import 'package:basecam/pages/root/widgetes/save_nav_bottom_bar.dart';
 import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:basecam/ui/theme.dart';
@@ -20,6 +23,10 @@ class _LocationDayState extends State<LocationDay> {
   final String title = "Location name";
   final String category = "Intermediate";
   final String distance = "13.1 km from Somename District";
+  final String rating = "4.95 (3)";
+  final String participantCount = "48";
+  final String description =
+      "Description text about something on this page that can be long or short. It can be pretty long and expand …";
 
   bool _isBookmarked = false;
 
@@ -90,8 +97,8 @@ class _LocationDayState extends State<LocationDay> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Назва локації ---
                   Row(
                     children: [
                       Expanded(
@@ -122,8 +129,6 @@ class _LocationDayState extends State<LocationDay> {
                     ],
                   ),
                   const SizedBox(height: 8),
-
-                  // --- Категорія та дистанція ---
                   Row(
                     children: [
                       TagWidget(text: category),
@@ -159,7 +164,7 @@ class _LocationDayState extends State<LocationDay> {
                     children: [
                       Expanded(
                         child: InfoBoxHoriz(
-                          asset: 'assets/icons/timer.svg',
+                          asset: 'assets/icons/spot.svg',
                           text: "Spot Type",
                           subText: "Outdoor",
                         ),
@@ -167,10 +172,9 @@ class _LocationDayState extends State<LocationDay> {
                       SizedBox(width: 10),
                       Expanded(
                         child: InfoBoxHoriz(
-                          asset: 'assets/icons/vector.svg',
+                          asset: 'assets/icons/difficulty.svg',
                           text: "Spot Type",
                           subText: "Outdoor",
-
                         ),
                       ),
                     ],
@@ -188,15 +192,133 @@ class _LocationDayState extends State<LocationDay> {
                       SizedBox(width: 10),
                       Expanded(
                         child: InfoBoxHoriz(
-                          asset: 'assets/icons/vector.svg',
+                          asset: 'assets/icons/sunrise.svg',
                           text: "Spot Type",
                           subText: "Outdoor",
-
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),
+                  Text(
+                    description,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: ThemeColors.greyColor,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star_rounded,
+                        size: 20,
+                        color: ThemeColors.primaryColor,
+                      ),
+                      const SizedBox(
+                        width: horizontalOffsetSpace,
+                      ), // Використовуйте width
+                      Text(rating),
+                      const SizedBox(width: 16), // Використовуйте width
+                      SvgPicture.asset(
+                        'assets/icons/profile.svg',
+                        width: sizeIcon,
+                        height: sizeIcon,
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ), // Використовуйте width (можливо, менший відступ тут)
+                      Text("$participantCount", style: textTheme.bodyMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.65,
+                    children: const [
+                      InfoBoxPhoto(
+                        // asset: 'assets/icons/timer.svg',
+                      ),
+                      InfoBoxPhoto(
+                        // asset: 'assets/icons/sunrise.svg',
+                      ),
+                      InfoBoxPhoto(
+                        // asset: 'assets/icons/timer.svg',
+                      ),
+                      InfoBoxPhoto(
+                        // asset: 'assets/icons/sunrise.svg',
+                      ),
+                      InfoBoxPhoto(
+                        // asset: 'assets/icons/timer.svg',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                  Ratings(
+                    votes: [
+                      4,
+                      4,
+                      2,
+                      2,
+                      5,
+                      5,
+                      5,
+                      3,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                      5,
+                    ],
+                  ),
 
+                  const SizedBox(height: 20),
+                  RatingList(
+                    rating: 5,
+                    title: 'Workshop title',
+                    description:
+                    'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
+                    date: '4343',
+                    tags: ["gg", "dgfg"],
+                  ),
+
+                  const SizedBox(height: 20),
+                  RatingList(
+                    rating: 4,
+                    title: 'Workshop title 2',
+                    description:
+                    'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
+                    date: '4343',
+                    tags: ["Tag1", "Tag2"],
+                  ),
+
+                  // ReviewItem(
+                  //   // Використовуйте назву вашого віджета для одного відгуку
+                  //   review: Review(
+                  //     // Створюємо об'єкт моделі Review
+                  //     rating: 4,
+                  //     userName: 'John Doe',
+                  //     userAvatarUrl: null, // Або шлях до аватара
+                  //     title: 'My Test Review',
+                  //     text:
+                  //         'This is the content of my test review. It was a good experience.',
+                  //     date: DateTime.now(), // Або конкретна дата
+                  //     tags: ['Test', 'Example'],
+                  //   ),
+                  // ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:basecam/app_path.dart';
 import 'package:basecam/pages/root/widgetes/event_card.dart';
 import 'package:basecam/pages/root/widgetes/product_card.dart';
-import 'package:basecam/pages/root/widgetes/rating.dart';
+import 'package:basecam/pages/root/widgetes/rating_list.dart';
 import 'package:basecam/ui/theme.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -78,7 +78,7 @@ class _ProfileTabState extends State<ProfileTab> {
           itemBuilder: (context, index) {
             return Padding(
               padding: EdgeInsets.only(bottom: index == 2 ? 0 : itemAxisSpacing),
-              child: Rating(
+              child: RatingList(
                 title: index == 0
                     ? "Excellent Service"
                     : (index == 1 ? "Very Good" : "Satisfactory"),
