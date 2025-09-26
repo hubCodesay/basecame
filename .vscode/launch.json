@@ -1,28 +1,14 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "basecam",
-            "cwd": "basecam",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "basecam (profile mode)",
-            "cwd": "basecam",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "basecam (release mode)",
-            "cwd": "basecam",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
-    ]
+  // Launch configuration for running the Flutter app on a specific simulator
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: Run on iPhone 16 Simulator (UDID)",
+      "request": "launch",
+      "type": "dart",
+      "preLaunchTask": "Boot iPhone 16 UDID",
+      "deviceId": "824B69DD-AD44-4DCE-A55D-715BE9816890",
+      "program": "lib/main.dart"
+    }
+  ]
 }
