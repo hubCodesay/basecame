@@ -118,9 +118,10 @@ class ShopTab extends StatelessWidget {
 
                     /// Results count (dynamic)
                     StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                      stream: FirebaseFirestore.instance
-                          .collection('gear')
-                          .snapshots(),
+          stream: FirebaseFirestore.instance
+            .collection('gear')
+            .where('status', isEqualTo: 'active')
+            .snapshots(),
                       builder: (context, snap) {
                         if (!snap.hasData) {
                           return const Text(
@@ -157,9 +158,10 @@ class ShopTab extends StatelessWidget {
               /// Grid with items (live from Firestore `gear` collection)
               SliverToBoxAdapter(
                 child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: FirebaseFirestore.instance
-                      .collection('gear')
-                      .snapshots(),
+          stream: FirebaseFirestore.instance
+            .collection('gear')
+            .where('status', isEqualTo: 'active')
+            .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const SizedBox(
