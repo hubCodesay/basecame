@@ -3,12 +3,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Flutter: Run on Chrome",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "program": "lib/main.dart"
+    },
+/*     {
       "name": "Flutter: Run on iPhone 16 Simulator (UDID)",
       "request": "launch",
       "type": "dart",
       "preLaunchTask": "Boot iPhone 16 UDID",
       "deviceId": "824B69DD-AD44-4DCE-A55D-715BE9816890",
       "program": "lib/main.dart"
-    }
+    } */
   ]
 }

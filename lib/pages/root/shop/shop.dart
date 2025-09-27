@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:basecam/pages/root/shop/shop_camera.dart';
 import 'package:basecam/pages/root/widgetes/product_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:basecam/models/gear.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:flutter_svg/svg.dart';
@@ -114,48 +116,139 @@ class ShopTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    /// Results count
-                    const Text(
-                      "Found 493 results",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    /// Results count (dynamic)
+                    StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                      stream: FirebaseFirestore.instance
+                          .collection('gear')
+                          .snapshots(),
+                      builder: (context, snap) {
+                        if (!snap.hasData) {
+                          return const Text(
+                            'Found 0 results',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          );
+                        }
+                        final docs = snap.data!.docs;
+                        // Count only documents that look valid (ownerId and title present)
+                        final validCount = docs.where((d) {
+                          final data = d.data();
+                          final owner = data['ownerId'] as String?;
+                          final title = data['title'] as String?;
+                          return (owner?.isNotEmpty ?? false) &&
+                              (title?.isNotEmpty ?? false);
+                        }).length;
+                        return Text(
+                          'Found $validCount results',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                   ],
                 ),
               ),
 
-              /// Grid with items
-              SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RentalItemPage(),
+              /// Grid with items (live from Firestore `gear` collection)
+              SliverToBoxAdapter(
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('gear')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                        height: 300,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('Error loading items: ${snapshot.error}'),
+                      );
+                    }
+
+                    final docs = snapshot.data?.docs ?? [];
+                    final items = docs
+                        .map((d) {
+                          try {
+                            return Gear.fromDoc(d);
+                          } catch (e, st) {
+                            debugPrint(
+                              'Skipping malformed gear doc ${d.id}: $e\n$st',
+                            );
+                            return null;
+                          }
+                        })
+                        .whereType<Gear>()
+                        .toList();
+                    // client side sort by createdAt desc
+                    items.sort((a, b) {
+                      final ta =
+                          a.createdAt?.toDate() ??
+                          DateTime.fromMillisecondsSinceEpoch(0);
+                      final tb =
+                          b.createdAt?.toDate() ??
+                          DateTime.fromMillisecondsSinceEpoch(0);
+                      return tb.compareTo(ta);
+                    });
+
+                    if (items.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Text('No items available'),
+                      );
+                    }
+
+                    // Build a GridView inside a constrained height
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemCount: items.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 0.6,
+                          ),
+                      itemBuilder: (context, index) {
+                        final gear = items[index];
+                        final price = '\$${gear.priceAmount}/day';
+                        final imageUrl = gear.photos.isNotEmpty
+                            ? (gear.photos.first['url'] as String?) ?? ''
+                            : '';
+                        final time = gear.createdAt != null
+                            ? gear.createdAt!.toDate().toLocal().toString()
+                            : '';
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RentalItemPage(gearId: gear.id),
+                              ),
+                            );
+                          },
+                          child: ProductCard(
+                            productName: gear.title,
+                            price: price,
+                            tag: 'For rent',
+                            location: gear.locationCity,
+                            timestamp: time,
+                            imageUrl: imageUrl,
                           ),
                         );
                       },
-                      child: ProductCard(
-                        productName: "Camera Model X ${index + 1}",
-                        price: "\$${(index + 1) * 10}/day",
-                        tag: "For rent",
-                        location: "Berlin",
-                        timestamp: "Yesterday 18:2$index",
-                      ),
                     );
                   },
-                  childCount: 10, // Example count
-                ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 0.6,
                 ),
               ),
             ],

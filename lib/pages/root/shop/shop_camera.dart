@@ -1,8 +1,44 @@
 import 'package:basecam/ui/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class RentalItemPage extends StatelessWidget {
-  const RentalItemPage({super.key});
+class RentalItemPage extends StatefulWidget {
+  final String? gearId;
+  const RentalItemPage({super.key, this.gearId});
+
+  @override
+  State<RentalItemPage> createState() => _RentalItemPageState();
+}
+
+class _RentalItemPageState extends State<RentalItemPage> {
+  String title = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGear();
+  }
+
+  Future<void> _loadGear() async {
+    final id = widget.gearId;
+    if (id == null) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('gear')
+          .doc(id)
+          .get();
+      if (doc.exists) {
+        final data = doc.data();
+        setState(() {
+          title = data?['title'] as String? ?? 'Untitled';
+        });
+      } else {
+        setState(() => title = 'Not found');
+      }
+    } catch (e) {
+      setState(() => title = 'Error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +98,9 @@ class RentalItemPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Camera name',
-                      style: TextStyle(
+                    Text(
+                      title,
+                      style: const TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                       ),

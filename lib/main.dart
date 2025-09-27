@@ -73,13 +73,23 @@ Future<FirebaseApp> _initFirebase() async {
     debugPrint('Default Firebase.initializeApp() failed: $e');
     debugPrint('Attempting fallback Firebase.initializeApp(options: ...)');
 
-    // Values copied from ios/Runner/GoogleService-Info.plist in this repo.
+    // Values taken from ios/GoogleService-Info.plist (App ID and sender ID).
+    // Replace the placeholders below with your real Firebase project values
+    // (apiKey, projectId, storageBucket) or run `flutterfire configure` to
+    // generate a fully populated `firebase_options.dart`.
+    // Filled with the project values you provided. For a full, canonical
+    // setup please run `flutterfire configure` which will generate
+    // `lib/firebase_options.dart` with per-platform values.
     const fallbackOptions = FirebaseOptions(
-      apiKey: 'AIzaSyAh4BpjIU0sEoe48lre6Zucp_rGCHCodzg',
-      appId: '1:1046868503978:ios:37a53e83868732941a8fd3',
-      messagingSenderId: '1046868503978',
-      projectId: 'basecambd',
-      storageBucket: 'basecambd.firebasestorage.app',
+      apiKey: 'AIzaSyDXxRTQiteU84k4ZMKI9_EePI2ZYIIw5BI',
+      // Note: the following appId is the iOS App ID you provided. It works
+      // as a fallback identifier; the FlutterFire CLI should generate the
+      // correct per-platform appIds when available.
+      appId: '1:340144437283:ios:17c08603b970ae1cec1996',
+      messagingSenderId: '340144437283',
+      projectId: 'basecambd-3b3be',
+      // storageBucket commonly follows the pattern <projectId>.appspot.com
+      storageBucket: 'basecambd-3b3be.appspot.com',
     );
 
     // Name omitted to create the default app instance.

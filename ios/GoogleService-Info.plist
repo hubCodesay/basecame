@@ -3,28 +3,37 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAh4BpjIU0sEoe48lre6Zucp_rGCHCodzg</string>
+	<string>AIzaSyAm1MHa-8O-pPXAU2kQwqSMU0ltlXi2ARg</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1046868503978</string>
+	<string>340144437283</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>CLIENT_ID</key>
+	<string>REPLACE_WITH_CLIENT_ID</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>REPLACE_WITH_REVERSED_CLIENT_ID</string>
+	<key>API_KEY</key>
+	<dict>
+		<key>CURRENT_KEY</key>
+		<string>REPLACE_WITH_API_KEY</string>
+	</dict>
+	<key>GCM_SENDER_ID</key>
+	<string>340144437283</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.basecompany.basecam</string>
 	<key>PROJECT_ID</key>
-	<string>basecambd</string>
+	<string>REPLACE_WITH_PROJECT_ID</string>
 	<key>STORAGE_BUCKET</key>
-	<string>basecambd.firebasestorage.app</string>
+	<string>REPLACE_WITH_STORAGE_BUCKET</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
-	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
-	<key>IS_GCM_ENABLED</key>
-	<true></true>
-	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1046868503978:ios:ec42712756c27be21a8fd3</string>
+	<string>1:340144437283:ios:17c08603b970ae1cec1996</string>
+	<key>DATABASE_URL</key>
+	<string>REPLACE_WITH_DATABASE_URL</string>
 </dict>
 </plist>

@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:basecam/pages/root/widgetes/filter_button.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
+import 'package:basecam/pages/gear/show_new_gear_modal.dart';
 
 class MapTab extends StatefulWidget {
   const MapTab({super.key});
@@ -18,14 +19,17 @@ class MapTab extends StatefulWidget {
 }
 
 class _MapTabState extends State<MapTab> {
+  // ignore: unused_field
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
+  // ignore: unused_field
   static const CameraPosition _kLake = CameraPosition(
     bearing: 192.8334901395799,
     target: LatLng(37.43296265331129, -122.08832357078792),
@@ -35,6 +39,7 @@ class _MapTabState extends State<MapTab> {
 
   final TextEditingController _mapSearchController = TextEditingController();
   final FocusNode _mapSearchFocusNode = FocusNode();
+  // ignore: unused_field
   TextAlign _currentMapSearchTextAlign = TextAlign.center;
 
   @override
@@ -80,8 +85,8 @@ class _MapTabState extends State<MapTab> {
   }
 
   void _handlePlanNewPressed() {
-    print("Plan new pressed!");
-    // TODO: Implement navigation or action for planning new
+    // Open the new listing form as a fullscreen modal
+    showNewGearModal(context);
   }
 
   @override
@@ -90,13 +95,32 @@ class _MapTabState extends State<MapTab> {
       body: SafeArea(
         child: Stack(
           children: [
-            /// Карта
-            GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _kGooglePlex,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
+            /// Карта (placeholder when Maps API is not configured)
+            Container(
+              color: Colors.grey.shade100,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.map, size: 72, color: Colors.grey),
+                      SizedBox(height: 12),
+                      Text(
+                        'Map unavailable — Maps API is not configured',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Enable the Maps API or provide API keys to use the map.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             /// Верхня панель (без Positioned)

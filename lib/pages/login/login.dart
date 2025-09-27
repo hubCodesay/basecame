@@ -93,6 +93,27 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     : const Text("Sign in"),
               ),
+              const SizedBox(height: 12),
+
+              // Quick test-account sign-in button (red)
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: _loading ? null : onSignInTest,
+                child: _loading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Sign in as test account'),
+              ),
+
               const SizedBox(height: 16),
 
               TextButton(
@@ -222,6 +243,84 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e, st) {
       debugPrint('SignIn unknown error: $e\n$st');
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Login error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> onSignInTest() async {
+    const email = 'test@gmail.com';
+    const password = 'test999';
+
+    setState(() => _loading = true);
+    try {
+      try {
+        final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        final uid = cred.user?.uid;
+        if (!mounted) return;
+        if (uid != null) {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+          if (!doc.exists) {
+            _showUserNotFoundDialog(email);
+            return;
+          }
+        }
+        context.go(AppPath.root.path);
+        return;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          // try to create user automatically
+          try {
+            final reg = await FirebaseAuth.instance
+                .createUserWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+            final uid = reg.user?.uid;
+            if (uid != null) {
+              // create a minimal users doc
+              await FirebaseFirestore.instance.collection('users').doc(uid).set(
+                {
+                  'displayName': 'Test User',
+                  'email': email,
+                  'hpBday': '',
+                  'phone': '+380687714099',
+                  'profile': {'phone': '+380687714099'},
+                },
+                SetOptions(merge: true),
+              );
+            }
+            context.go(AppPath.root.path);
+            return;
+          } catch (e) {
+            debugPrint('Auto-create failed: $e');
+          }
+        }
+        // otherwise show same error flow as normal sign in
+        rethrow;
+      }
+    } catch (e, st) {
+      debugPrint('TestSignIn error: $e\n$st');
       if (!mounted) return;
       await showDialog<void>(
         context: context,
