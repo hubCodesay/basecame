@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import 'package:basecam/app_path.dart';
@@ -14,6 +15,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool notificationsEnabled = false;
   bool darkMode = false;
+  bool _signingOut = false;
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +95,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsTile.navigation(
                   leading: const Icon(Icons.logout),
                   title: const Text('Log out'),
-                  onPressed: (_) {
-                    // TODO: log out action
-                  },
+                  onPressed: _signingOut
+                      ? null
+                      : (_) async {
+                          setState(() => _signingOut = true);
+                          try {
+                            await FirebaseAuth.instance.signOut();
+                            if (!mounted) return;
+                            // Navigate to login screen (replace current stack)
+                            context.go(AppPath.login.path);
+                          } catch (e) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Sign out failed: $e')),
+                            );
+                          } finally {
+                            if (mounted) setState(() => _signingOut = false);
+                          }
+                        },
                 ),
               ],
             ),

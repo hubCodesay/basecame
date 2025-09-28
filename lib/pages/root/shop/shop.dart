@@ -6,6 +6,7 @@ import 'package:basecam/pages/root/widgetes/product_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:basecam/models/gear.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
+import 'package:basecam/pages/gear/show_new_gear_modal.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -17,10 +18,7 @@ class ShopTab extends StatelessWidget {
     // TODO: Implement search logic for shop items
   }
 
-  void _handleShopPostNewPressed() {
-    print("Post new pressed in ShopTab!");
-    // TODO: Implement action for posting a new item (e.g., navigate to a new screen)
-  }
+  // ...existing code... (no helper needed)
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,7 @@ class ShopTab extends StatelessWidget {
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: _handleShopPostNewPressed,
+                            onPressed: () => showNewGearModal(context),
                             icon: const Icon(
                               Icons.add,
                               color: ThemeColors.blackColor,
@@ -118,10 +116,10 @@ class ShopTab extends StatelessWidget {
 
                     /// Results count (dynamic)
                     StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-            .collection('gear')
-            .where('status', isEqualTo: 'active')
-            .snapshots(),
+                      stream: FirebaseFirestore.instance
+                          .collection('gear')
+                          .where('status', isEqualTo: 'active')
+                          .snapshots(),
                       builder: (context, snap) {
                         if (!snap.hasData) {
                           return const Text(
@@ -158,10 +156,10 @@ class ShopTab extends StatelessWidget {
               /// Grid with items (live from Firestore `gear` collection)
               SliverToBoxAdapter(
                 child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-            .collection('gear')
-            .where('status', isEqualTo: 'active')
-            .snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection('gear')
+                      .where('status', isEqualTo: 'active')
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const SizedBox(

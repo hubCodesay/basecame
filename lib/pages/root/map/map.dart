@@ -9,7 +9,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:basecam/pages/root/widgetes/filter_button.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
-import 'package:basecam/pages/gear/show_new_gear_modal.dart';
 
 class MapTab extends StatefulWidget {
   const MapTab({super.key});
@@ -84,10 +83,7 @@ class _MapTabState extends State<MapTab> {
     // TODO: Implement search logic
   }
 
-  void _handlePlanNewPressed() {
-    // Open the new listing form as a fullscreen modal
-    showNewGearModal(context);
-  }
+  // Plan new action moved to ShopTab; no handler needed here.
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +138,9 @@ class _MapTabState extends State<MapTab> {
                               hintText: "Search",
                             ),
                           ),
+                          // Plan new button (visible but intentionally does nothing)
                           TextButton.icon(
-                            onPressed: _handlePlanNewPressed,
+                            onPressed: () {}, // intentionally no-op
                             icon: const Icon(
                               Icons.add,
                               color: ThemeColors.blackColor,
