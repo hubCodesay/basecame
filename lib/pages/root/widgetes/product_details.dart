@@ -55,8 +55,7 @@ class ProductDetails extends StatelessWidget {
               ),
             ),
           if (tag != null) const SizedBox(height: 4),
-          Text(
-            price ?? "\$0/hr",
+          if (price != null) Text(price!,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 4), 

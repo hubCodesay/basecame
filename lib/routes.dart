@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:basecam/pages/login/login.dart';
 import 'package:basecam/pages/onboard/onboard.dart';
 import 'package:basecam/pages/registration/registration.dart';
-import 'package:basecam/pages/root/profile/edit_profile.dart';
+// import 'package:basecam/pages/root/profile/edit_profile.dart';
 import 'package:basecam/pages/root/profile/profile.dart';
 import 'package:basecam/pages/root/profile/settings.dart';
 import 'package:basecam/pages/root/profile/support.dart';
@@ -18,7 +18,9 @@ import 'app_path.dart';
 /// GoRouter configuration
 final router = GoRouter(
 debugLogDiagnostics: true,
-  initialLocation: AppPath.start.path,
+  initialLocation:
+    AppPath.start.path,
+    // AppPath.root.path,
   routes: [
     GoRoute(
       path: AppPath.root.path,
@@ -57,10 +59,10 @@ debugLogDiagnostics: true,
           path: 'settings',
           builder: (context, state) => const SettingsPage(),
         ),
-        GoRoute(
-          path: 'edit_profile',
-          builder: (context, state) => const ProfileEditPage(),
-        ),
+        // GoRoute(
+        //   path: 'edit_profile',
+        //   builder: (context, state) => const ProfileEditPage(),
+        // ),
         GoRoute(
           path: 'support',
           builder: (context, state) => const SupportRequestPage(),

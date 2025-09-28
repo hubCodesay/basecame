@@ -2,6 +2,7 @@ import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
 import 'package:basecam/pages/root/widgetes/info_box.dart';
 import 'package:basecam/pages/root/widgetes/info_box_horiz.dart';
 import 'package:basecam/pages/root/widgetes/info_box_photo.dart';
+import 'package:basecam/pages/root/widgetes/product_card.dart';
 import 'package:basecam/pages/root/widgetes/rating_list.dart';
 import 'package:basecam/pages/root/widgetes/ratings.dart';
 import 'package:basecam/pages/root/widgetes/save_nav_bottom_bar.dart';
@@ -27,7 +28,7 @@ class _LocationDayState extends State<LocationDay> {
   final String participantCount = "48";
   final String description =
       "Description text about something on this page that can be long or short. It can be pretty long and expand …";
-
+  final votes = [4, 4, 2, 2, 5, 5, 5, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
   bool _isBookmarked = false;
 
   @override
@@ -262,26 +263,7 @@ class _LocationDayState extends State<LocationDay> {
                   const SizedBox(height: 10),
                   const SizedBox(height: 10),
                   Ratings(
-                    votes: [
-                      4,
-                      4,
-                      2,
-                      2,
-                      5,
-                      5,
-                      5,
-                      3,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                      5,
-                    ],
+                    votes: votes,
                   ),
 
                   const SizedBox(height: 20),
@@ -289,7 +271,7 @@ class _LocationDayState extends State<LocationDay> {
                     rating: 5,
                     title: 'Workshop title',
                     description:
-                    'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
+                        'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
                     date: '4343',
                     tags: ["gg", "dgfg"],
                   ),
@@ -299,7 +281,7 @@ class _LocationDayState extends State<LocationDay> {
                     rating: 4,
                     title: 'Workshop title 2',
                     description:
-                    'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
+                        'Thanks for great service and interesting program. it was so nice to meet all those great proffecionals.',
                     date: '4343',
                     tags: ["Tag1", "Tag2"],
                   ),
@@ -318,7 +300,31 @@ class _LocationDayState extends State<LocationDay> {
                   //     tags: ['Test', 'Example'],
                   //   ),
                   // ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Popular photo spots in this region',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 230,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal, // 👈 горизонтальний скрол
+                      itemCount: 4,
+                      separatorBuilder: (context, index) => SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          width: 155,
+                          child: ProductCard(
+                            imageUrl: "https://picsum.photos/seed/${index + 50}/200/200",
+                            productName: 'location title',
+                            location: 'Berlin',
+                            timestamp: 'Yesterday 18:24',
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),

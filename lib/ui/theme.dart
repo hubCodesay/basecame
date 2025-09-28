@@ -15,7 +15,6 @@ class ThemeColors {
   static const primaryColor = ThemeColors.blackColor;
   static const primaryTextColor = ThemeColors.background;
   static const bodyTextColor = ThemeColors.blackColor;
-
 }
 
 const _fontFamily = 'Inter';
@@ -55,6 +54,13 @@ final lightTheme = ThemeData(
       fontWeight: FontWeight.w600,
       height: 1.5,
     ),
+    titleLarge: TextStyle(
+      fontSize: 18,
+      fontFamily: 'Inter',
+      color: ThemeColors.blackColor,
+      fontWeight: FontWeight.w600,
+    ),
+
     // Основний текст
     // bodyMedium: TextStyle(
     //   fontSize: _textSize,

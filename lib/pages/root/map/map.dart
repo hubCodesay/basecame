@@ -257,68 +257,68 @@ class _MapTabState extends State<MapTab> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black12,
                         blurRadius: 10,
                         offset: const Offset(0, -3),
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 5,
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 8,
-                        ),
-                        child: Text(
-                          "Nearby Locations",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                  child: ListView.builder(
+                    controller: scrollController, // 👈 головне
+                    itemCount: 2 + 5, // 2 статичні елементи + 5 карток
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // шеврон
+                        return Center(
+                          child: Container(
+                            width: 40,
+                            height: 5,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: 5,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: ProductCardNav(
-                                onTap: () => context.push(
-                                  index.isOdd
-                                      ? AppPath.locationDay.path
-                                      : AppPath.location.path,
-                                ),
-                                productName: "Awesome Place ${index + 1}",
-                                price: "${(index + 1) * 10} USD",
-                                tag: "Adventure",
-                                location: "Nearby, ${index * 2 + 1} km",
-                                timestamp: "Posted ${index + 1}h ago",
-                                imageUrl:
-                                    "https://picsum.photos/seed/${index + 100}/400/200",
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                        );
+                      } else if (index == 1) {
+                        // заголовок
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                          child: Text(
+                            "Nearby Locations",
+                            style: Theme.of(context).textTheme.titleLarge
+                            // TextStyle(
+                            //   fontWeight: FontWeight.bold,
+                            //   fontSize: 18,
+                            // ),
+                          ),
+                        );
+                      } else {
+                        // картки
+                        final itemIndex = index - 2;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                          child: ProductCardNav(
+                            onTap: () => context.push(
+                              itemIndex.isOdd
+                                  ? AppPath.locationDay.path
+                                  : AppPath.location.path,
+                            ),
+                            productName: "Awesome Place ${itemIndex + 1}",
+                            price: "${(itemIndex + 1) * 10} USD",
+                            tag: "Adventure",
+                            location: "Nearby, ${itemIndex * 2 + 1} km",
+                            timestamp: "Posted ${itemIndex + 1}h ago",
+                            imageUrl: "https://picsum.photos/seed/${itemIndex + 100}/400/200",
+                          ),
+                        );
+                      }
+                    },
                   ),
                 );
               },
             ),
+
           ],
         ),
       ),
