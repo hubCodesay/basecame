@@ -1,3 +1,4 @@
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -30,7 +31,7 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget _buildSelectedTabContent() {
     switch (selectedTabIndex) {
       case 0:
-        // Show only gear created by the signed-in user
+      // Show only gear created by the signed-in user
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) {
           return Center(
@@ -174,7 +175,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   location: location,
                   timestamp: timestamp,
                   imageUrl:
-                      imageUrl ??
+                  imageUrl ??
                       'https://picsum.photos/seed/equip${index}/300/400',
                 );
               },
@@ -199,7 +200,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 title: "Amazing Location $index",
                 date: "1${index % 9}.0${5 + index % 4}",
                 description:
-                    "Description about location $index. Can be long or short, detailing the experience.",
+                "Description about location $index. Can be long or short, detailing the experience.",
                 distance: "${5 + index * 0.3} km from you",
                 onLearnMorePressed: () {
                   print("Learn more pressed on location $index");
@@ -223,7 +224,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     ? "Excellent Service"
                     : (index == 1 ? "Very Good" : "Satisfactory"),
                 description:
-                    "Really enjoyed renting here. The equipment was in top condition and the staff was helpful.",
+                "Really enjoyed renting here. The equipment was in top condition and the staff was helpful.",
                 date: "Sep ${5 + index}, 2025",
                 tags: index == 0
                     ? ["Friendly", "Fast", "Reliable"]
@@ -240,6 +241,13 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
+    final textTabStyle = Theme.of(context).textTheme.titleMedium!.copyWith(
+        color: ThemeColors.greyColor
+    );
+    final textSelTabStyle = Theme.of(context).textTheme.titleMedium!.copyWith(
+        color: ThemeColors.primaryTextColor
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -287,20 +295,20 @@ class _ProfileTabState extends State<ProfileTab> {
                                 // Icon(Icons.star, size: 22, color: ThemeColors.blackColor),
                                 const SizedBox(width: 6),
                                 StreamBuilder<
-                                  DocumentSnapshot<Map<String, dynamic>>?
+                                    DocumentSnapshot<Map<String, dynamic>>?
                                 >(
                                   stream:
-                                      FirebaseAuth.instance.currentUser == null
+                                  FirebaseAuth.instance.currentUser == null
                                       ? Stream.value(null)
                                       : FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(
-                                              FirebaseAuth
-                                                  .instance
-                                                  .currentUser!
-                                                  .uid,
-                                            )
-                                            .snapshots(),
+                                      .collection('users')
+                                      .doc(
+                                    FirebaseAuth
+                                        .instance
+                                        .currentUser!
+                                        .uid,
+                                  )
+                                      .snapshots(),
                                   builder: (context, snap) {
                                     if (snap.hasData &&
                                         snap.data != null &&
@@ -312,9 +320,9 @@ class _ProfileTabState extends State<ProfileTab> {
                                       try {
                                         if (data['reviewsSummary'] is Map) {
                                           reviewsSummary =
-                                              Map<String, dynamic>.from(
-                                                data['reviewsSummary'] as Map,
-                                              );
+                                          Map<String, dynamic>.from(
+                                            data['reviewsSummary'] as Map,
+                                          );
                                         }
                                       } catch (_) {
                                         reviewsSummary = null;
@@ -326,24 +334,24 @@ class _ProfileTabState extends State<ProfileTab> {
                                       if (reviewsSummary != null) {
                                         ratingVal =
                                             reviewsSummary['rating'] ??
-                                            reviewsSummary['avg'] ??
-                                            reviewsSummary['ratingValue'];
+                                                reviewsSummary['avg'] ??
+                                                reviewsSummary['ratingValue'];
                                         reviewsCount =
                                             reviewsSummary['reviewCount'] ??
-                                            reviewsSummary['count'] ??
-                                            reviewsSummary['reviews'];
+                                                reviewsSummary['count'] ??
+                                                reviewsSummary['reviews'];
                                       } else {
                                         ratingVal =
                                             data['rating'] ??
-                                            data['ratingValue'] ??
-                                            data['avgRating'] ??
-                                            data['rating_avg'] ??
-                                            0;
+                                                data['ratingValue'] ??
+                                                data['avgRating'] ??
+                                                data['rating_avg'] ??
+                                                0;
                                         reviewsCount =
                                             data['reviewsCount'] ??
-                                            data['reviews_count'] ??
-                                            data['reviews'] ??
-                                            0;
+                                                data['reviews_count'] ??
+                                                data['reviews'] ??
+                                                0;
                                       }
 
                                       final ratingText = ratingVal is num
@@ -467,77 +475,44 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
               const SizedBox(height: 24),
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(35),
-                child: CupertinoSlidingSegmentedControl<int>(
-                  backgroundColor: ThemeColors.silverColor,
-                  thumbColor: ThemeColors.pureBlackColor,
-                  padding: const EdgeInsets.all(4),
-                  groupValue: selectedTabIndex,
-                  onValueChanged: (value) =>
-                      setState(() => selectedTabIndex = value!),
-                  children: {
-                    0: ClipRRect(
-                      borderRadius: BorderRadius.circular(35),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Equipments',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: selectedTabIndex == 0
-                                ? Colors.white
-                                : ThemeColors.greyColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    1: ClipRRect(
-                      borderRadius: BorderRadius.circular(35),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Locations',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: selectedTabIndex == 1
-                                ? Colors.white
-                                : ThemeColors.greyColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    2: ClipRRect(
-                      borderRadius: BorderRadius.circular(35),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Rating',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: selectedTabIndex == 2
-                                ? Colors.white
-                                : ThemeColors.greyColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  },
+              CustomSlidingSegmentedControl<int>(
+                isStretch: true,
+                initialValue: selectedTabIndex,
+                children: {
+                  0: Text('Equipments', style: selectedTabIndex == 0 ? textSelTabStyle : textTabStyle),
+                  1: Text('Locations', style: selectedTabIndex == 1 ? textSelTabStyle : textTabStyle ),
+                  2: Text('Rating', style: selectedTabIndex == 2 ? textSelTabStyle : textTabStyle ),
+                },
+                decoration: BoxDecoration(
+                  color: ThemeColors.silverColor,
+                  borderRadius: BorderRadius.circular(30),
                 ),
+
+                thumbDecoration: BoxDecoration(
+                  color: ThemeColors.pureBlackColor,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4.0,
+                      spreadRadius: 1.0,
+                      offset: Offset(
+                        0.0,
+                        2.0,
+                      ),
+                    ),
+                  ],
+                ),
+                duration: Duration(milliseconds: 300),
+                curve: Curves.ease,
+                onValueChanged: (value) {
+                  setState(() => selectedTabIndex = value);
+                },
               ),
 
               const SizedBox(height: 16),
 
-              // Контент, що скролиться, з прозорістю
+              // Контент, що зявляється, з прозорістю
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
@@ -546,6 +521,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   transitionBuilder: (child, animation) =>
                       FadeTransition(opacity: animation, child: child),
                   child: Container(
+                    alignment: Alignment.topCenter,
                     key: ValueKey<int>(selectedTabIndex),
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.only(bottom: 16),

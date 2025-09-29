@@ -46,7 +46,7 @@ class _LocationDayState extends State<LocationDay> {
           IconButton(
             icon: SvgPicture.asset(
               _isBookmarked
-                  ? 'assets/icons/bookmark.svg' // Іконка для стану "в закладках"
+                  ? 'assets/icons/bookmark_filled.svg' // Іконка для стану "в закладках"
                   : 'assets/icons/bookmark.svg', // Іконка для стану "не в закладках"
               width: 24,
               height: 24,

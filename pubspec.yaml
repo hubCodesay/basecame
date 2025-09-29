@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cloud_firestore: ^6.0.1
   cupertino_icons: ^1.0.8
+  custom_sliding_segmented_control: ^1.8.5
   equatable: ^2.0.7
   firebase_auth: ^6.0.2
   firebase_core: ^4.1.0
