@@ -5,12 +5,14 @@ import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:basecam/pages/root/widgetes/waypoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:basecam/ui/theme.dart';
 import 'package:go_router/go_router.dart';
 
 class LocationScreen extends StatefulWidget {
-  const LocationScreen({super.key});
+  final String? locationId;
+  const LocationScreen({super.key, this.locationId});
 
   @override
   State<LocationScreen> createState() => _LocationScreenState();
@@ -21,7 +23,7 @@ class _LocationScreenState extends State<LocationScreen> {
   final String category = "Intermediate";
   final String rating = "4.95 (3)";
   final String participantCount = "48";
-  final String title = "Location name Location name";
+  String title = "Location name Location name";
   final String date = "14.05";
   final String description =
       "Description text about something on this page that can be long or short. It can be pretty long and expand …";
@@ -56,13 +58,32 @@ class _LocationScreenState extends State<LocationScreen> {
       title: 'DERWE',
       titleIcon: SizedBox(child: Image.asset("assets/pexels.jpg")),
       subtitle:
-      'Description text about something on this page that can be long or short. It can be pretty long and explaining information about the',
+          'Description text about something on this page that can be long or short. It can be pretty long and explaining information about the',
     ),
   ];
 
   @override
   void initState() {
     super.initState();
+    // Load title from Firestore if an id was provided
+    if (widget.locationId != null) {
+      FirebaseFirestore.instance
+          .collection('location')
+          .doc(widget.locationId)
+          .get()
+          .then((doc) {
+            if (doc.exists) {
+              final data = doc.data();
+              final dbTitle = data == null ? null : data['title'] as String?;
+              if (dbTitle != null && dbTitle.isNotEmpty) {
+                setState(() {
+                  title = dbTitle;
+                });
+              }
+            }
+          })
+          .catchError((_) {});
+    }
   }
 
   @override

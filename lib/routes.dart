@@ -32,7 +32,11 @@ final router = GoRouter(
     ),
     GoRoute(
       path: AppPath.location.path,
-      builder: (context, state) => const LocationScreen(),
+      builder: (context, state) => LocationScreen(
+        locationId: state.extra is Map
+            ? (state.extra as Map)['id'] as String?
+            : null,
+      ),
     ),
     GoRoute(
       path: AppPath.locationDay.path,
