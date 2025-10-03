@@ -4,6 +4,7 @@ class Post {
   final String? imageUrl;
   final String? price;
   final String? description;
+  final DateTime? createdAt;
 
   Post({
     required this.id,
@@ -11,6 +12,7 @@ class Post {
     this.imageUrl,
     this.price,
     this.description,
+    this.createdAt,
   });
 
   factory Post.fromMap(Map<String, dynamic> data, String id) => Post(
@@ -19,6 +21,13 @@ class Post {
     imageUrl: data['imageUrl'] as String?,
     price: data['price']?.toString(),
     description: data['description'] as String?,
+    createdAt: data['createdAt'] != null
+        ? DateTime.fromMillisecondsSinceEpoch(
+            (data['createdAt'] is int)
+                ? data['createdAt'] as int
+                : int.parse(data['createdAt'].toString()),
+          )
+        : null,
   );
 
   Map<String, dynamic> toMap() => {
@@ -26,5 +35,6 @@ class Post {
     'imageUrl': imageUrl,
     'price': price,
     'description': description,
+    'createdAt': createdAt?.millisecondsSinceEpoch,
   };
 }

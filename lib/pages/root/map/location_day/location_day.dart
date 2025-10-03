@@ -8,12 +8,14 @@ import 'package:basecam/pages/root/widgetes/ratings.dart';
 import 'package:basecam/pages/root/widgetes/save_nav_bottom_bar.dart';
 import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:basecam/ui/theme.dart';
+import 'package:basecam/services/posts_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class LocationDay extends StatefulWidget {
-  const LocationDay({super.key});
+  final String? postId;
+  const LocationDay({super.key, this.postId});
 
   @override
   State<LocationDay> createState() => _LocationDayState();
@@ -21,7 +23,7 @@ class LocationDay extends StatefulWidget {
 
 class _LocationDayState extends State<LocationDay> {
   final String imageUrl = "assets/images/map.png";
-  final String title = "Location name";
+  String title = "Location day";
   final String category = "Intermediate";
   final String distance = "13.1 km from Somename District";
   final String rating = "4.95 (3)";
@@ -33,6 +35,13 @@ class _LocationDayState extends State<LocationDay> {
 
   @override
   Widget build(BuildContext context) {
+    // If a postId was provided, try to set the title from postsRepo (sync stub)
+    if (widget.postId != null && widget.postId!.isNotEmpty) {
+      final found = postsRepo.getPostById(widget.postId!);
+      if (found != null) {
+        title = found.title;
+      }
+    }
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -104,7 +113,6 @@ class _LocationDayState extends State<LocationDay> {
                     children: [
                       Expanded(
                         child: Text(
-                          maxLines: 2,
                           title,
                           style: textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -155,7 +163,6 @@ class _LocationDayState extends State<LocationDay> {
                           style: textTheme.bodySmall?.copyWith(
                             color: ThemeColors.greyColor,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -206,8 +213,6 @@ class _LocationDayState extends State<LocationDay> {
                     style: textTheme.bodyMedium?.copyWith(
                       color: ThemeColors.greyColor,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -262,9 +267,7 @@ class _LocationDayState extends State<LocationDay> {
                   const SizedBox(height: 10),
                   const SizedBox(height: 10),
                   const SizedBox(height: 10),
-                  Ratings(
-                    votes: votes,
-                  ),
+                  Ratings(votes: votes),
 
                   const SizedBox(height: 20),
                   RatingList(
@@ -309,14 +312,16 @@ class _LocationDayState extends State<LocationDay> {
                   SizedBox(
                     height: 230,
                     child: ListView.separated(
-                      scrollDirection: Axis.horizontal, // 👈 горизонтальний скрол
+                      scrollDirection:
+                          Axis.horizontal, // 👈 горизонтальний скрол
                       itemCount: 4,
                       separatorBuilder: (context, index) => SizedBox(width: 8),
                       itemBuilder: (context, index) {
                         return Container(
                           width: 155,
                           child: ProductCard(
-                            imageUrl: "https://picsum.photos/seed/${index + 50}/200/200",
+                            imageUrl:
+                                "https://picsum.photos/seed/${index + 50}/200/200",
                             productName: 'location title',
                             location: 'Berlin',
                             timestamp: 'Yesterday 18:24',

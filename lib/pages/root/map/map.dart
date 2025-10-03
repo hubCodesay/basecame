@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:basecam/ui/theme.dart';
 import 'package:basecam/pages/root/widgetes/filter_button.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
-import 'package:basecam/pages/root/map/new_location_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapTab extends StatefulWidget {
   const MapTab({super.key});
@@ -20,16 +19,28 @@ class MapTab extends StatefulWidget {
 }
 
 class _MapTabState extends State<MapTab> {
+  // ignore: unused_field
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
+  // ignore: unused_field
+  static const CameraPosition _kLake = CameraPosition(
+    bearing: 192.8334901395799,
+    target: LatLng(37.43296265331129, -122.08832357078792),
+    tilt: 59.440717697143555,
+    zoom: 19.151926040649414,
+  );
+
   final TextEditingController _mapSearchController = TextEditingController();
   final FocusNode _mapSearchFocusNode = FocusNode();
+  // ignore: unused_field
+  TextAlign _currentMapSearchTextAlign = TextAlign.center;
 
   @override
   void initState() {
@@ -41,21 +52,39 @@ class _MapTabState extends State<MapTab> {
   @override
   void dispose() {
     _mapSearchController.dispose();
+    _mapSearchFocusNode.removeListener(_onMapSearchFocusChange);
+    _mapSearchController.removeListener(_onMapSearchTextChange);
     _mapSearchFocusNode.dispose();
     super.dispose();
   }
 
   void _onMapSearchFocusChange() {
-    setState(() {});
+    setState(() {
+      if (_mapSearchFocusNode.hasFocus ||
+          _mapSearchController.text.isNotEmpty) {
+        _currentMapSearchTextAlign = TextAlign.start;
+      } else {
+        _currentMapSearchTextAlign = TextAlign.center;
+      }
+    });
   }
 
   void _onMapSearchTextChange() {
-    setState(() {});
+    setState(() {
+      if (_mapSearchController.text.isNotEmpty) {
+        _currentMapSearchTextAlign = TextAlign.start;
+      } else if (!_mapSearchFocusNode.hasFocus) {
+        _currentMapSearchTextAlign = TextAlign.center;
+      }
+    });
   }
 
   void _handleSearchChanged(String searchText) {
-    // placeholder for future search
+    print("Search text: $searchText");
+    // TODO: Implement search logic
   }
+
+  // Plan new action moved to ShopTab; no handler needed here.
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +92,7 @@ class _MapTabState extends State<MapTab> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Map placeholder
+            /// Карта (placeholder when Maps API is not configured)
             Container(
               color: Colors.grey.shade100,
               child: Center(
@@ -91,12 +120,15 @@ class _MapTabState extends State<MapTab> {
               ),
             ),
 
-            // Top controls
+            /// Верхня панель (без Positioned)
             Column(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: ThemeColors.background),
+                  decoration: BoxDecoration(
+                    color: ThemeColors.background,
+                    // borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Column(
                     children: [
                       Row(
@@ -104,30 +136,18 @@ class _MapTabState extends State<MapTab> {
                           Expanded(
                             child: SearchBarWidget(
                               onChanged: _handleSearchChanged,
-                              hintText: 'Search',
+                              hintText: "Search",
                             ),
                           ),
+                          // Plan new button (visible but intentionally does nothing)
                           TextButton.icon(
-                            onPressed: () async {
-                              final res = await Navigator.of(context)
-                                  .push<bool>(
-                                    MaterialPageRoute(
-                                      builder: (_) => const NewLocationPage(),
-                                    ),
-                                  );
-                              if (res == true && mounted)
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Location created'),
-                                  ),
-                                );
-                            },
+                            onPressed: () {}, // intentionally no-op
                             icon: const Icon(
                               Icons.add,
                               color: ThemeColors.blackColor,
                             ),
                             label: const Text(
-                              'Plan new',
+                              "Plan new",
                               style: TextStyle(
                                 color: ThemeColors.blackColor,
                                 fontSize: 14,
@@ -137,6 +157,8 @@ class _MapTabState extends State<MapTab> {
                         ],
                       ),
                       const SizedBox(height: 20),
+
+                      /// Button Filter
                       IntrinsicHeight(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -149,6 +171,7 @@ class _MapTabState extends State<MapTab> {
                                 width: 24,
                                 height: 24,
                               ),
+                              // icon: Icons.camera_alt_outlined,
                               dropIcon: true,
                               backgroundColor: ThemeColors.background,
                               borderColor: ThemeColors.silverColor,
@@ -175,14 +198,14 @@ class _MapTabState extends State<MapTab> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Start from',
+                                    "Start from",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w400,
                                       color: ThemeColors.greyColor,
                                     ),
                                   ),
                                   Text(
-                                    'Within 30 km',
+                                    "Within 30 km",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: ThemeColors.greyColor,
@@ -207,7 +230,7 @@ class _MapTabState extends State<MapTab> {
                               fontWeight: FontWeight.w400,
                               borderRadius: 12,
                               dropIcon: false,
-                              label: const Text('Filter'),
+                              label: Text("Filter"),
                             ),
                           ],
                         ),
@@ -218,7 +241,7 @@ class _MapTabState extends State<MapTab> {
               ],
             ),
 
-            // Bottom sheet with live locations from Firestore
+            /// Нижня панель
             DraggableScrollableSheet(
               initialChildSize: 0.25,
               minChildSize: 0.1,
@@ -243,119 +266,144 @@ class _MapTabState extends State<MapTab> {
                         .collection('location')
                         .orderBy('createdAt', descending: true)
                         .snapshots(),
-                    builder: (context, snap) {
-                      if (snap.connectionState == ConnectionState.waiting) {
-                        return ListView(
-                          controller: scrollController,
-                          children: const [
-                            SizedBox(
-                              height: 120,
-                              child: Center(child: CircularProgressIndicator()),
+                    builder: (context, locationSnapshot) {
+                      final locationDocs = locationSnapshot.data?.docs ?? [];
+                      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        stream: FirebaseFirestore.instance
+                            .collection('routeLoc')
+                            .orderBy('createdAt', descending: true)
+                            .snapshots(),
+                        builder: (context, routeSnapshot) {
+                          final routeDocs = routeSnapshot.data?.docs ?? [];
+
+                          // combine both lists and keep source info
+                          final combined = <Map<String, Object>>[];
+                          combined.addAll(
+                            locationDocs.map(
+                              (d) => {'doc': d, 'source': 'location'},
                             ),
-                          ],
-                        );
-                      }
-                      if (snap.hasError) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text('Error loading locations: ${snap.error}'),
-                        );
-                      }
-
-                      final docs = snap.data?.docs ?? [];
-
-                      return ListView.builder(
-                        controller: scrollController,
-                        itemCount: 2 + docs.length,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return Center(
-                              child: Container(
-                                width: 40,
-                                height: 5,
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            );
-                          } else if (index == 1) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 8,
-                              ),
-                              child: Text(
-                                'Nearby Locations',
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                            );
-                          }
-
-                          final doc = docs[index - 2];
-                          final data = doc.data();
-                          final title = data['title'] as String? ?? 'Untitled';
-
-                          final tagsRaw = data['tagLoc'];
-                          final tag = (tagsRaw is List && tagsRaw.isNotEmpty)
-                              ? (tagsRaw.first as String)
-                              : (tagsRaw is String ? tagsRaw : '');
-
-                          String? imageUrl;
-                          final photoField = data['photoLoc'];
-                          if (photoField is String && photoField.isNotEmpty) {
-                            imageUrl = photoField;
-                          } else if (photoField is List &&
-                              photoField.isNotEmpty) {
-                            imageUrl = (photoField.first as String?);
-                          } else {
-                            imageUrl = null; // ProductCard shows placeholder
-                          }
-
-                          String locationText = '';
-                          final locPoint = data['locatPoint'];
-                          if (locPoint is GeoPoint) {
-                            locationText =
-                                'Point: ${locPoint.latitude.toStringAsFixed(4)}, ${locPoint.longitude.toStringAsFixed(4)}';
-                          } else if (locPoint is Map) {
-                            final lat = locPoint['latitude'] ?? locPoint['lat'];
-                            final lng =
-                                locPoint['longitude'] ?? locPoint['lng'];
-                            if (lat != null && lng != null)
-                              locationText =
-                                  'Point: ${lat.toString().substring(0, 8)}, ${lng.toString().substring(0, 8)}';
-                          }
-
-                          final createdAt = data['createdAt'];
-                          String timestamp = '';
-                          if (createdAt is Timestamp) {
-                            final dt = createdAt.toDate();
-                            timestamp =
-                                'Posted ${dt.toLocal().toIso8601String().split('T').first}';
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 16,
-                              left: 16,
-                              right: 16,
+                          );
+                          combined.addAll(
+                            routeDocs.map(
+                              (d) => {'doc': d, 'source': 'routeLoc'},
                             ),
-                            child: ProductCardNav(
-                              onTap: () => context.push(
-                                AppPath.location.path,
-                                extra: {'id': doc.id},
-                              ),
-                              productName: title,
-                              price: null,
-                              tag: tag,
-                              location: locationText,
-                              timestamp: timestamp,
-                              imageUrl: imageUrl,
+                          );
+
+                          // map to pairs with createdAt DateTime for sorting and keep source
+                          final items = combined.map((entry) {
+                            final doc =
+                                entry['doc']
+                                    as QueryDocumentSnapshot<
+                                      Map<String, dynamic>
+                                    >;
+                            final data = doc.data();
+                            final createdRaw = data['createdAt'];
+                            DateTime created;
+                            if (createdRaw is Timestamp) {
+                              created = createdRaw.toDate();
+                            } else if (createdRaw is int) {
+                              created = DateTime.fromMillisecondsSinceEpoch(
+                                createdRaw,
+                              );
+                            } else {
+                              created = DateTime.fromMillisecondsSinceEpoch(0);
+                            }
+                            return {
+                              'doc': doc,
+                              'created': created,
+                              'source': entry['source'],
+                            };
+                          }).toList();
+
+                          // sort newest first
+                          items.sort(
+                            (a, b) => (b['created'] as DateTime).compareTo(
+                              a['created'] as DateTime,
                             ),
+                          );
+
+                          return ListView.builder(
+                            controller: scrollController,
+                            itemCount: 2 + items.length,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                // шеврон
+                                return Center(
+                                  child: Container(
+                                    width: 40,
+                                    height: 5,
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                );
+                              } else if (index == 1) {
+                                // заголовок
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 16,
+                                    right: 16,
+                                    bottom: 8,
+                                  ),
+                                  child: Text(
+                                    "Nearby Locations",
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                  ),
+                                );
+                              } else {
+                                final doc =
+                                    items[index - 2]['doc']
+                                        as QueryDocumentSnapshot<
+                                          Map<String, dynamic>
+                                        >;
+                                final data = doc.data();
+                                // Use the Firestore document id to navigate to details
+                                final id = doc.id;
+                                final title = data['title'] ?? '';
+                                final created =
+                                    items[index - 2]['created'] as DateTime;
+                                final timestampText =
+                                    created.millisecondsSinceEpoch > 0
+                                    ? created.toString()
+                                    : '';
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: 16,
+                                    left: 16,
+                                    right: 16,
+                                  ),
+                                  child: ProductCardNav(
+                                    onTap: () {
+                                      final source =
+                                          items[index - 2]['source']
+                                              as String? ??
+                                          'location';
+                                      final target = (source == 'routeLoc')
+                                          ? '${AppPath.location.path}/$id' // routeLoc -> open location.dart
+                                          : '${AppPath.locationDay.path}/$id'; // location -> open location_day.dart
+                                      context.push(target);
+                                    },
+                                    productName: title,
+                                    price: '',
+                                    tag:
+                                        (data['tagLoc'] is List &&
+                                            data['tagLoc'].isNotEmpty)
+                                        ? (data['tagLoc'][0] ?? '')
+                                        : '',
+                                    location: '',
+                                    timestamp: timestampText,
+                                    imageUrl: data['photoLoc'] ?? '',
+                                  ),
+                                );
+                              }
+                            },
                           );
                         },
                       );
@@ -372,5 +420,7 @@ class _MapTabState extends State<MapTab> {
 }
 
 void onFilterPhoto() {}
+
 void onFilterPoint() {}
+
 void onFilter() {}

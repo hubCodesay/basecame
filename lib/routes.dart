@@ -1,4 +1,4 @@
-import 'package:basecam/pages/root/map/location/location.dart';
+import 'package:basecam/pages/root/map/route/route.dart';
 import 'package:basecam/pages/root/map/location_day/location_day.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,17 +30,16 @@ final router = GoRouter(
       path: AppPath.start.path,
       builder: (context, state) => const LoadingPage(),
     ),
+    // Location routes expect an `id` path parameter (e.g. /map/location/123)
     GoRoute(
-      path: AppPath.location.path,
-      builder: (context, state) => LocationScreen(
-        locationId: state.extra is Map
-            ? (state.extra as Map)['id'] as String?
-            : null,
-      ),
+      path: '${AppPath.location.path}/:id',
+      builder: (context, state) =>
+          LocationScreen(postId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
-      path: AppPath.locationDay.path,
-      builder: (context, state) => const LocationDay(),
+      path: '${AppPath.locationDay.path}/:id',
+      builder: (context, state) =>
+          LocationDay(postId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
       path: AppPath.onboard.path,

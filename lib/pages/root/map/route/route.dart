@@ -5,14 +5,15 @@ import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:basecam/pages/root/widgetes/waypoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:basecam/ui/theme.dart';
 import 'package:go_router/go_router.dart';
+import 'package:basecam/services/posts_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LocationScreen extends StatefulWidget {
-  final String? locationId;
-  const LocationScreen({super.key, this.locationId});
+  final String? postId;
+  const LocationScreen({super.key, this.postId});
 
   @override
   State<LocationScreen> createState() => _LocationScreenState();
@@ -23,7 +24,7 @@ class _LocationScreenState extends State<LocationScreen> {
   final String category = "Intermediate";
   final String rating = "4.95 (3)";
   final String participantCount = "48";
-  String title = "Location name Location name";
+  String title = "Route name";
   final String date = "14.05";
   final String description =
       "Description text about something on this page that can be long or short. It can be pretty long and expand …";
@@ -65,25 +66,6 @@ class _LocationScreenState extends State<LocationScreen> {
   @override
   void initState() {
     super.initState();
-    // Load title from Firestore if an id was provided
-    if (widget.locationId != null) {
-      FirebaseFirestore.instance
-          .collection('location')
-          .doc(widget.locationId)
-          .get()
-          .then((doc) {
-            if (doc.exists) {
-              final data = doc.data();
-              final dbTitle = data == null ? null : data['title'] as String?;
-              if (dbTitle != null && dbTitle.isNotEmpty) {
-                setState(() {
-                  title = dbTitle;
-                });
-              }
-            }
-          })
-          .catchError((_) {});
-    }
   }
 
   @override
@@ -91,6 +73,14 @@ class _LocationScreenState extends State<LocationScreen> {
     // Визначимо текстові стилі тут для легшого доступу та консистентності
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+
+    // If a postId was provided, try to set the title from postsRepo (sync stub)
+    if (widget.postId != null && widget.postId!.isNotEmpty) {
+      final found = postsRepo.getPostById(widget.postId!);
+      if (found != null) {
+        title = found.title;
+      }
+    }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -164,14 +154,37 @@ class _LocationScreenState extends State<LocationScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          maxLines: 2,
-                          title,
-                          style: textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
+                        child:
+                            (widget.postId != null && widget.postId!.isNotEmpty)
+                            ? StreamBuilder<
+                                DocumentSnapshot<Map<String, dynamic>>
+                              >(
+                                stream: FirebaseFirestore.instance
+                                    .collection('routeLoc')
+                                    .doc(widget.postId)
+                                    .snapshots(),
+                                builder: (context, snap) {
+                                  final remoteTitle =
+                                      snap.data?.data()?['title'] as String?;
+                                  final display = remoteTitle ?? title;
+                                  return Text(
+                                    display,
+                                    maxLines: 2,
+                                    style: textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colorScheme.onSurface,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Text(
+                                title,
+                                maxLines: 2,
+                                style: textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
                       ),
                       IconButton(
                         onPressed: () {},
