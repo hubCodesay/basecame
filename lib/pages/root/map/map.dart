@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:basecam/pages/root/widgetes/filter_button.dart';
 import 'package:basecam/pages/root/widgetes/search.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapTab extends StatefulWidget {
   const MapTab({super.key});
@@ -22,10 +23,20 @@ class _MapTabState extends State<MapTab> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  // markers shown on the map
+  final Set<Marker> _markers = <Marker>{
+    Marker(
+      markerId: const MarkerId('berlin'),
+      position: const LatLng(52.5200, 13.4050),
+      infoWindow: const InfoWindow(title: 'Berlin'),
+    ),
+  };
+
   // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    // Center on Berlin, Germany
+    target: LatLng(52.5200, 13.4050),
+    zoom: 12.0,
   );
 
   // ignore: unused_field
@@ -91,32 +102,16 @@ class _MapTabState extends State<MapTab> {
       body: SafeArea(
         child: Stack(
           children: [
-            /// Карта (placeholder when Maps API is not configured)
-            Container(
-              color: Colors.grey.shade100,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.map, size: 72, color: Colors.grey),
-                      SizedBox(height: 12),
-                      Text(
-                        'Map unavailable — Maps API is not configured',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Enable the Maps API or provide API keys to use the map.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            /// Google Map
+            GoogleMap(
+              initialCameraPosition: _kGooglePlex,
+              mapType: MapType.normal,
+              markers: _markers,
+              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
+              onMapCreated: (GoogleMapController controller) {
+                if (!_controller.isCompleted) _controller.complete(controller);
+              },
             ),
 
             /// Верхня панель (без Positioned)
@@ -260,62 +255,157 @@ class _MapTabState extends State<MapTab> {
                       ),
                     ],
                   ),
-                  child: ListView.builder(
-                    controller: scrollController, // 👈 головне
-                    itemCount: 2 + 5, // 2 статичні елементи + 5 карток
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        // шеврон
-                        return Center(
-                          child: Container(
-                            width: 40,
-                            height: 5,
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(8),
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('location')
+                        .orderBy('createdAt', descending: true)
+                        .snapshots(),
+                    builder: (context, locationSnapshot) {
+                      final locationDocs = locationSnapshot.data?.docs ?? [];
+                      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        stream: FirebaseFirestore.instance
+                            .collection('routeLoc')
+                            .orderBy('createdAt', descending: true)
+                            .snapshots(),
+                        builder: (context, routeSnapshot) {
+                          final routeDocs = routeSnapshot.data?.docs ?? [];
+
+                          // combine both lists and keep source info
+                          final combined = <Map<String, Object>>[];
+                          combined.addAll(
+                            locationDocs.map(
+                              (d) => {'doc': d, 'source': 'location'},
                             ),
-                          ),
-                        );
-                      } else if (index == 1) {
-                        // заголовок
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-                          child: Text(
-                            "Nearby Locations",
-                            style: Theme.of(context).textTheme.titleLarge
-                            // TextStyle(
-                            //   fontWeight: FontWeight.bold,
-                            //   fontSize: 18,
-                            // ),
-                          ),
-                        );
-                      } else {
-                        // картки
-                        final itemIndex = index - 2;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                          child: ProductCardNav(
-                            onTap: () => context.push(
-                              itemIndex.isOdd
-                                  ? AppPath.locationDay.path
-                                  : AppPath.location.path,
+                          );
+                          combined.addAll(
+                            routeDocs.map(
+                              (d) => {'doc': d, 'source': 'routeLoc'},
                             ),
-                            productName: "Awesome Place ${itemIndex + 1}",
-                            price: "${(itemIndex + 1) * 10} USD",
-                            tag: "Adventure",
-                            location: "Nearby, ${itemIndex * 2 + 1} km",
-                            timestamp: "Posted ${itemIndex + 1}h ago",
-                            imageUrl: "https://picsum.photos/seed/${itemIndex + 100}/400/200",
-                          ),
-                        );
-                      }
+                          );
+
+                          // map to pairs with createdAt DateTime for sorting and keep source
+                          final items = combined.map((entry) {
+                            final doc =
+                                entry['doc']
+                                    as QueryDocumentSnapshot<
+                                      Map<String, dynamic>
+                                    >;
+                            final data = doc.data();
+                            final createdRaw = data['createdAt'];
+                            DateTime created;
+                            if (createdRaw is Timestamp) {
+                              created = createdRaw.toDate();
+                            } else if (createdRaw is int) {
+                              created = DateTime.fromMillisecondsSinceEpoch(
+                                createdRaw,
+                              );
+                            } else {
+                              created = DateTime.fromMillisecondsSinceEpoch(0);
+                            }
+                            return {
+                              'doc': doc,
+                              'created': created,
+                              'source': entry['source'],
+                            };
+                          }).toList();
+
+                          // sort newest first
+                          items.sort(
+                            (a, b) => (b['created'] as DateTime).compareTo(
+                              a['created'] as DateTime,
+                            ),
+                          );
+
+                          return ListView.builder(
+                            controller: scrollController,
+                            itemCount: 2 + items.length,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                // шеврон
+                                return Center(
+                                  child: Container(
+                                    width: 40,
+                                    height: 5,
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                );
+                              } else if (index == 1) {
+                                // заголовок
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 16,
+                                    right: 16,
+                                    bottom: 8,
+                                  ),
+                                  child: Text(
+                                    "Nearby Locations",
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                  ),
+                                );
+                              } else {
+                                final doc =
+                                    items[index - 2]['doc']
+                                        as QueryDocumentSnapshot<
+                                          Map<String, dynamic>
+                                        >;
+                                final data = doc.data();
+                                // Use the Firestore document id to navigate to details
+                                final id = doc.id;
+                                final title = data['title'] ?? '';
+                                final created =
+                                    items[index - 2]['created'] as DateTime;
+                                final timestampText =
+                                    created.millisecondsSinceEpoch > 0
+                                    ? created.toString()
+                                    : '';
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: 16,
+                                    left: 16,
+                                    right: 16,
+                                  ),
+                                  child: ProductCardNav(
+                                    onTap: () {
+                                      final source =
+                                          items[index - 2]['source']
+                                              as String? ??
+                                          'location';
+                                      final target = (source == 'routeLoc')
+                                          ? '${AppPath.location.path}/$id' // routeLoc -> open location.dart
+                                          : '${AppPath.locationDay.path}/$id'; // location -> open location_day.dart
+                                      context.push(target);
+                                    },
+                                    productName: title,
+                                    price: '',
+                                    tag:
+                                        (data['tagLoc'] is List &&
+                                            data['tagLoc'].isNotEmpty)
+                                        ? (data['tagLoc'][0] ?? '')
+                                        : '',
+                                    location: '',
+                                    timestamp: timestampText,
+                                    imageUrl: data['photoLoc'] ?? '',
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      );
                     },
                   ),
                 );
               },
             ),
-
           ],
         ),
       ),
