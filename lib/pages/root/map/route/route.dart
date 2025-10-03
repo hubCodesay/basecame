@@ -20,7 +20,8 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
-  final String imageUrl = "assets/images/map.png";
+  // Default image for the route (fallback)
+  final String defaultImage = "assets/pexels.jpg";
   final String category = "Intermediate";
   final String rating = "4.95 (3)";
   final String participantCount = "48";
@@ -66,6 +67,25 @@ class _LocationScreenState extends State<LocationScreen> {
   @override
   void initState() {
     super.initState();
+    // Increment view counter once when screen is first shown for a given postId
+    if (widget.postId != null && widget.postId!.isNotEmpty) {
+      _incrementViewCount();
+    }
+  }
+
+  Future<void> _incrementViewCount() async {
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('viewUser')
+          .doc(widget.postId);
+      // Use atomic increment to avoid race conditions
+      await docRef.set({
+        'views': FieldValue.increment(1),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      // ignore errors for now — we don't want to block UI on analytics failure
+      // Consider logging to monitoring in a real app
+    }
   }
 
   @override
@@ -128,19 +148,56 @@ class _LocationScreenState extends State<LocationScreen> {
             // --- Верхня частина з картою та кнопками поверх неї ---
             Stack(
               children: [
-                Image.asset(
-                  imageUrl,
-                  height: 143,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 143,
-                      color: Colors.grey[300],
-                      child: Center(),
-                    );
-                  },
-                ),
+                // If we have a postId, try to load a remote image from /routeLoc/{postId}
+                // Fields we try: 'photoUrl', 'photo', 'image'. If none present, fall back to defaultImage.
+                (widget.postId != null && widget.postId!.isNotEmpty)
+                    ? StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                        stream: FirebaseFirestore.instance
+                            .collection('routeLoc')
+                            .doc(widget.postId)
+                            .snapshots(),
+                        builder: (context, snap) {
+                          String? remotePhoto;
+                          if (snap.hasData && snap.data?.data() != null) {
+                            final data = snap.data!.data()!;
+                            remotePhoto =
+                                data['photoUrl'] as String? ??
+                                data['photo'] as String? ??
+                                data['image'] as String?;
+                          }
+
+                          if (remotePhoto != null && remotePhoto.isNotEmpty) {
+                            return Image.network(
+                              remotePhoto,
+                              height: 143,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  defaultImage,
+                                  height: 143,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            );
+                          }
+
+                          // Fallback while waiting or if no remote image
+                          return Image.asset(
+                            defaultImage,
+                            height: 143,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        defaultImage,
+                        height: 143,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ],
             ),
 
@@ -209,7 +266,55 @@ class _LocationScreenState extends State<LocationScreen> {
                   // --- Категорія та дистанція ---
                   Row(
                     children: [
-                      TagWidget(text: category),
+                      // Render tags from Firestore: /routeLoc/{postId}/tagLoc
+                      (widget.postId != null && widget.postId!.isNotEmpty)
+                          ? StreamBuilder<
+                              DocumentSnapshot<Map<String, dynamic>>
+                            >(
+                              stream: FirebaseFirestore.instance
+                                  .collection('routeLoc')
+                                  .doc(widget.postId)
+                                  .snapshots(),
+                              builder: (context, snap) {
+                                if (snap.hasError)
+                                  return TagWidget(text: category);
+                                if (!snap.hasData || snap.data?.data() == null)
+                                  return TagWidget(text: category);
+
+                                final raw = snap.data!.data()?['tagLoc'];
+                                // tagLoc can be a String, List<String>, Map<String, dynamic> or null
+                                if (raw == null)
+                                  return TagWidget(text: category);
+
+                                List<String> tags = [];
+                                if (raw is String) {
+                                  tags = [raw];
+                                } else if (raw is Iterable) {
+                                  tags = raw.cast<String>().toList();
+                                } else if (raw is Map) {
+                                  // if stored as map {tag: true}
+                                  tags = raw.entries
+                                      .where((e) => e.value == true)
+                                      .map((e) => e.key as String)
+                                      .toList()
+                                      .cast<String>();
+                                }
+
+                                if (tags.isEmpty)
+                                  return TagWidget(text: category);
+
+                                return Flexible(
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    children: tags
+                                        .map((t) => TagWidget(text: t))
+                                        .toList(),
+                                  ),
+                                );
+                              },
+                            )
+                          : TagWidget(text: category),
                       const SizedBox(width: 12),
                     ],
                   ),
@@ -239,16 +344,61 @@ class _LocationScreenState extends State<LocationScreen> {
                   ),
                   const SizedBox(height: vertSpace),
                   // --- Опис ---
-                  Text(
-                    description,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: ThemeColors.greyColor,
-                    ),
-                  ),
+                  (widget.postId != null && widget.postId!.isNotEmpty)
+                      ? StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                          stream: FirebaseFirestore.instance
+                              .collection('routeLoc')
+                              .doc(widget.postId)
+                              .snapshots(),
+                          builder: (context, snap) {
+                            // On error or no data, fall back to the local `description` value
+                            if (snap.hasError) {
+                              return Text(
+                                description,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: ThemeColors.greyColor,
+                                ),
+                              );
+                            }
+
+                            if (snap.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final remoteDescr =
+                                snap.data?.data()?['descrLoc'] as String?;
+                            final display = remoteDescr ?? description;
+
+                            return Text(
+                              display,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: ThemeColors.greyColor,
+                              ),
+                            );
+                          },
+                        )
+                      : Text(
+                          description,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: ThemeColors.greyColor,
+                          ),
+                        ),
                   const SizedBox(height: vertSpace),
 
                   // --- Рейтинг і учасники ---
-                  Row(
+                  /*  Row(
                     children: [
                       Icon(
                         Icons.star_rounded,
@@ -269,10 +419,42 @@ class _LocationScreenState extends State<LocationScreen> {
                         height: sizeIcon,
                       ),
                       const SizedBox(width: 4),
-                      Text("$participantCount", style: textTheme.bodyMedium),
+                      // Show live view count from /viewUser/{postId} if available
+                      (widget.postId != null && widget.postId!.isNotEmpty)
+                          ? StreamBuilder<
+                              DocumentSnapshot<Map<String, dynamic>>
+                            >(
+                              stream: FirebaseFirestore.instance
+                                  .collection('viewUser')
+                                  .doc(widget.postId)
+                                  .snapshots(),
+                              builder: (context, snap) {
+                                if (snap.hasError)
+                                  return Text(
+                                    participantCount,
+                                    style: textTheme.bodyMedium,
+                                  );
+                                if (!snap.hasData ||
+                                    snap.data?.data() == null) {
+                                  return Text(
+                                    participantCount,
+                                    style: textTheme.bodyMedium,
+                                  );
+                                }
+                                final views = snap.data?.data()?['views'];
+                                final v = (views is int)
+                                    ? views
+                                    : (views is num ? views.toInt() : null);
+                                return Text(
+                                  v != null ? v.toString() : participantCount,
+                                  style: textTheme.bodyMedium,
+                                );
+                              },
+                            )
+                          : Text(participantCount, style: textTheme.bodyMedium),
                     ],
                   ),
-
+ */
                   /// 🔹 Лінія №2
                   const SizedBox(height: 8),
                   const Divider(height: 1, color: ThemeColors.greyColor),
@@ -382,8 +564,66 @@ class _LocationScreenState extends State<LocationScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      // (Add stage button removed)
                       const SizedBox(height: 10),
-                      Waypoints(waypoints: _waypoints),
+                      // Load waypoints from Firestore: /routeLoc/{postId}/waypoints ordered by 'order'
+                      (widget.postId != null && widget.postId!.isNotEmpty)
+                          ? StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('routeLoc')
+                                  .doc(widget.postId)
+                                  .collection('waypoints')
+                                  .orderBy('order')
+                                  .snapshots(),
+                              builder: (context, snap) {
+                                if (snap.hasError)
+                                  return Waypoints(waypoints: _waypoints);
+                                if (!snap.hasData)
+                                  return Waypoints(waypoints: _waypoints);
+
+                                final docs = snap.data!.docs;
+                                if (docs.isEmpty)
+                                  return Waypoints(waypoints: _waypoints);
+
+                                final wpList = docs.map((d) {
+                                  final data = d.data();
+                                  final name =
+                                      data['name'] as String? ?? 'Stage';
+                                  final descr = data['descr'] as String? ?? '';
+                                  final orderVal = data['order'];
+                                  final order = (orderVal is int)
+                                      ? orderVal
+                                      : (orderVal is num
+                                            ? orderVal.toInt()
+                                            : null);
+                                  String distanceText = '';
+                                  // If this is the first waypoint (order == 0), show 0 km
+                                  if (order != null && order == 0) {
+                                    distanceText = '0 km';
+                                  } else {
+                                    distanceText = '9 km';
+                                  }
+
+                                  // For now always show the same default image for each waypoint
+                                  Widget? titleIcon = Image.asset(
+                                    defaultImage,
+                                    fit: BoxFit.cover,
+                                  );
+
+                                  return Waypoint(
+                                    icon: Icons.location_on_outlined,
+                                    title: name,
+                                    subtitle: descr,
+                                    titleIcon: titleIcon,
+                                    distance: distanceText,
+                                  );
+                                }).toList();
+
+                                return Waypoints(waypoints: wpList);
+                              },
+                            )
+                          : Waypoints(waypoints: _waypoints),
                       const SizedBox(height: 8),
                     ],
                   ),
