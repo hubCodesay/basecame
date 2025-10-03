@@ -140,7 +140,7 @@ class _MapTabState extends State<MapTab> {
                           ),
                           // Plan new button (visible but intentionally does nothing)
                           TextButton.icon(
-                            onPressed: () {}, // intentionally no-op
+                            onPressed: () => context.push(AppPath.newLocation.path), // intentionally no-op
                             icon: const Icon(
                               Icons.add,
                               color: ThemeColors.blackColor,

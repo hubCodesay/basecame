@@ -1,5 +1,6 @@
 import 'package:basecam/pages/root/map/location/location.dart';
 import 'package:basecam/pages/root/map/location_day/location_day.dart';
+import 'package:basecam/pages/root/map/plan_new_location/plan_new_location.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,6 +38,10 @@ final router = GoRouter(
     GoRoute(
       path: AppPath.locationDay.path,
       builder: (context, state) => const LocationDay(),
+    ),
+    GoRoute(
+      path: AppPath.newLocation.path,
+      builder: (context, state) => const PlanNewLocation(),
     ),
     GoRoute(
       path: AppPath.onboard.path,

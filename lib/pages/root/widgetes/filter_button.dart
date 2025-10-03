@@ -12,9 +12,12 @@ class FilterButton extends StatelessWidget {
   final Color? foregroundColor;
   final Color? borderColor;
   final double borderWidth;
+  final double? fontSize;
   final Color? iconColor;
   final FontWeight? fontWeight;
   final bool showBorder;
+  final MainAxisAlignment? rowMainAxisAlignment;
+  final bool useSpacer;
 
   const FilterButton({
     super.key,
@@ -27,9 +30,12 @@ class FilterButton extends StatelessWidget {
     this.borderColor,
     this.iconColor,
     this.fontWeight,
+    this.fontSize,
     this.borderRadius = 8,
     this.borderWidth = 2,
     this.showBorder = true,
+    this.rowMainAxisAlignment,
+    this.useSpacer = false,
   });
 
   @override
@@ -40,8 +46,8 @@ class FilterButton extends StatelessWidget {
         foregroundColor: foregroundColor,
         side: showBorder
             ? (borderColor != null
-            ? BorderSide(color: borderColor!, width: borderWidth)
-            : null)
+                  ? BorderSide(color: borderColor!, width: borderWidth)
+                  : null)
             : BorderSide.none,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
@@ -51,6 +57,8 @@ class FilterButton extends StatelessWidget {
       onPressed: onPressed,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: rowMainAxisAlignment ?? MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (icon != null) icon!,
@@ -60,12 +68,14 @@ class FilterButton extends StatelessWidget {
               style: TextStyle(
                 fontWeight: fontWeight ?? FontWeight.normal,
                 color: foregroundColor,
-                fontSize: 14,
+                fontSize: fontSize ?? 14,
                 // height: 1.4,
               ),
               child: label!,
             ),
             SizedBox(width: 4),
+            if (useSpacer) const Spacer(),
+            // Spacer(),
             // ?label,
           ],
           if (dropIcon)
@@ -79,4 +89,3 @@ class FilterButton extends StatelessWidget {
     );
   }
 }
-
