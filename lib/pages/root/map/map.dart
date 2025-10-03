@@ -23,10 +23,20 @@ class _MapTabState extends State<MapTab> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  // markers shown on the map
+  final Set<Marker> _markers = <Marker>{
+    Marker(
+      markerId: const MarkerId('berlin'),
+      position: const LatLng(52.5200, 13.4050),
+      infoWindow: const InfoWindow(title: 'Berlin'),
+    ),
+  };
+
   // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    // Center on Berlin, Germany
+    target: LatLng(52.5200, 13.4050),
+    zoom: 12.0,
   );
 
   // ignore: unused_field
@@ -92,32 +102,16 @@ class _MapTabState extends State<MapTab> {
       body: SafeArea(
         child: Stack(
           children: [
-            /// Карта (placeholder when Maps API is not configured)
-            Container(
-              color: Colors.grey.shade100,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.map, size: 72, color: Colors.grey),
-                      SizedBox(height: 12),
-                      Text(
-                        'Map unavailable — Maps API is not configured',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Enable the Maps API or provide API keys to use the map.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            /// Google Map
+            GoogleMap(
+              initialCameraPosition: _kGooglePlex,
+              mapType: MapType.normal,
+              markers: _markers,
+              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
+              onMapCreated: (GoogleMapController controller) {
+                if (!_controller.isCompleted) _controller.complete(controller);
+              },
             ),
 
             /// Верхня панель (без Positioned)
