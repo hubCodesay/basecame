@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:basecam/pages/login/login.dart';
 import 'package:basecam/pages/onboard/onboard.dart';
 import 'package:basecam/pages/registration/registration.dart';
-// import 'package:basecam/pages/root/profile/edit_profile.dart';
 import 'package:basecam/pages/root/profile/profile.dart';
 import 'package:basecam/pages/root/profile/settings.dart';
 import 'package:basecam/pages/root/profile/support.dart';

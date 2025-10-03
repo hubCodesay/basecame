@@ -22,6 +22,8 @@ enum AppPath {
   location('/map/location'),
   /// Локейшен день
   locationDay('/map/location_day'),
+  /// Маршрут та локація
+  newLocation('/map/plan_new_location'),
   /// Екран з вибіром логуванням
   registration('/registration'),
   /// Екран з налаштуваннями
