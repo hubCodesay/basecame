@@ -1,7 +1,7 @@
+import 'package:basecam/ui/widgets/image_network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:basecam/pages/root/widgetes/image_network.dart';
 import 'package:basecam/ui/theme.dart';
 
 class EventCard extends StatelessWidget {
@@ -165,7 +165,7 @@ class EventCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/vector.svg',
+                          'assets/icons/edit.svg',
                           width: 16,
                           height: 16,
                           colorFilter: ColorFilter.mode(ThemeColors.greyColor, BlendMode.srcIn),

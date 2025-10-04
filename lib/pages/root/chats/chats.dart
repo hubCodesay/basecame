@@ -1,5 +1,5 @@
-import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
 import 'package:basecam/ui/theme.dart';
+import 'package:basecam/ui/widgets/arrow_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:basecam/pages/root/chats/chats_details.dart';
 import 'package:flutter_svg/svg.dart';

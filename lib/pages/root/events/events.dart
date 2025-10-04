@@ -1,11 +1,10 @@
 import 'package:basecam/ui/theme.dart';
+import 'package:basecam/ui/widgets/event_card.dart';
+import 'package:basecam/ui/widgets/filter_button.dart';
+import 'package:basecam/ui/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-
-import 'package:basecam/pages/root/widgetes/event_card.dart';
-import 'package:basecam/pages/root/widgetes/filter_button.dart';
-import 'package:basecam/pages/root/widgetes/search.dart';
 
 class EventsTab extends StatefulWidget {
   const EventsTab({super.key});

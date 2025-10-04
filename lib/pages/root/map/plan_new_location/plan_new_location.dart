@@ -1,3 +1,5 @@
+import 'package:basecam/ui/widgets/filter_button.dart';
+import 'package:basecam/ui/widgets/info_box_photo.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:basecam/pages/root/widgetes/filter_button.dart';
-import 'package:basecam/pages/root/widgetes/info_box_photo.dart';
 import 'package:basecam/ui/theme.dart';
 
 class PlanNewLocation extends StatefulWidget {
@@ -24,6 +24,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
 
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  List<bool> isWaypointExpanded = [false];
 
   @override
   void dispose() {
@@ -37,13 +38,182 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
   void _addWaypoint() {
     setState(() {
       waypointControllers.add(TextEditingController());
+      isWaypointExpanded.add(false);
     });
   }
 
   void _removeWaypoint(int index) {
     setState(() {
       waypointControllers.removeAt(index);
+      isWaypointExpanded.removeAt(index);
     });
+  }
+
+  Widget _buildWaypointsList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Список вейпоінтів",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(height: 12),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: waypointControllers.length,
+          itemBuilder: (context, index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ThemeColors.silverColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/indicator.svg',
+                        width: 7,
+                        height: 12,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: waypointControllers[index],
+                          decoration: const InputDecoration(
+                            hintText: "Input Waypoint address",
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isWaypointExpanded[index]
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          color: ThemeColors.greyColor,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isWaypointExpanded[index] =
+                                !isWaypointExpanded[index];
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  if (isWaypointExpanded[index]) ...[
+                    const SizedBox(height: 8),
+                    TextField(
+                      // controller: (){},
+                      decoration: const InputDecoration(
+                        hintText: "Waypoint name",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      // controller: waypointDescControllers[index],
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        hintText: "Description",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: ImagePicker
+                      },
+                      child: DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                          // borderType: BorderType.RRect,
+                          radius: Radius.circular(20),
+                          dashPattern: [6, 6],
+                          color: ThemeColors.greyColor,
+                          strokeWidth: 2,
+                        ),
+                        child: Container(
+                          height: 150,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/plus.svg',
+                                width: 20,
+                                height: 20,
+                              ),
+                              SizedBox(height: 26),
+                              Text(
+                                "Add Photos",
+                                style: TextStyle(
+                                  color: ThemeColors.greyColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () => _removeWaypoint(index),
+                        icon: SvgPicture.asset(
+                          'assets/icons/delete.svg',
+                          width: 20,
+                          height: 20,
+                        ),
+                        label: const Text(
+                          "Delete Waypoint",
+                          style: TextStyle(color: ThemeColors.redColor50),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton.icon(
+              onPressed: _addWaypoint,
+              icon: SvgPicture.asset(
+                'assets/icons/plus.svg',
+                width: 10,
+                height: 10,
+              ),
+              label: Text(
+                "Add Waypoint",
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: ThemeColors.greyColor,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: ThemeColors.greyColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
   }
 
   // Функція, що повертає контент для кожного таба
@@ -331,75 +501,205 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               maxLines: 3,
             ),
             const SizedBox(height: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Список вейпоінтів",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 12),
+            _buildWaypointsList(),
 
-                ...waypointControllers.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  TextEditingController controller = entry.value;
-
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 16,
-                    ), // відстань між вейпоінтами
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ), // відступи всередині контейнера
-                    decoration: BoxDecoration(
-                      color: ThemeColors
-                          .silverColor, // світлий фон, як на картинці
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        // drag-handle (ліворуч)
-                        Icon(
-                          Icons.drag_indicator_sharp,
-                          color: ThemeColors.blackColor,
-                        ),
-                        // const SizedBox(height: 16),
-
-                        // саме поле вводу
-                        Expanded(
-                          child: TextField(
-                            controller: controller,
-                            decoration: const InputDecoration(
-                              hintText: "Input Waypoint address",
-                              border: InputBorder.none, // без рамки
-                              // contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                            ),
-                          ),
-                        ),
-
-                        IconButton(
-                          icon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: ThemeColors.greyColor,
-                          ),
-                          onPressed: () {},
-                        ),
-
-                      ],
-                    ),
-                  );
-                }),
-
-                TextButton.icon(
-                  onPressed: _addWaypoint,
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add Waypoint"),
-                ),
-                const SizedBox(height: 18),
-              ],
-            ),
-
+            // Column(
+            //   crossAxisAlignment: CrossAxisAlignment.start,
+            //   children: [
+            //     const Text(
+            //       "Список вейпоінтів",
+            //       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            //     ),
+            //     const SizedBox(height: 12),
+            //
+            //     ...waypointControllers.asMap().entries.map((entry) {
+            //       int index = entry.key;
+            //       TextEditingController controller = entry.value;
+            //
+            //       // return Container(
+            //       //   margin: const EdgeInsets.symmetric(
+            //       //     vertical: 16,
+            //       //   ), // відстань між вейпоінтами
+            //       //   padding: const EdgeInsets.symmetric(
+            //       //     horizontal: 16,
+            //       //     vertical: 16,
+            //       //   ), // відступи всередині контейнера
+            //       //   decoration: BoxDecoration(
+            //       //     color: ThemeColors
+            //       //         .silverColor, // світлий фон, як на картинці
+            //       //     borderRadius: BorderRadius.circular(12),
+            //       //   ),
+            //       //   child: Row(
+            //       //     children: [
+            //       //       // drag-handle (ліворуч)
+            //       //       Icon(
+            //       //         Icons.drag_indicator_sharp,
+            //       //         color: ThemeColors.blackColor,
+            //       //       ),
+            //       //       // const SizedBox(height: 16),
+            //       //
+            //       //       // саме поле вводу
+            //       //       Expanded(
+            //       //         child: TextField(
+            //       //           controller: controller,
+            //       //           decoration: const InputDecoration(
+            //       //             hintText: "Input Waypoint address",
+            //       //             border: InputBorder.none, // без рамки
+            //       //             // contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            //       //           ),
+            //       //         ),
+            //       //       ),
+            //       //
+            //       //       IconButton(
+            //       //         icon: const Icon(
+            //       //           Icons.keyboard_arrow_down,
+            //       //           color: ThemeColors.greyColor,
+            //       //         ),
+            //       //         onPressed: () {},
+            //       //       ),
+            //       //
+            //       //     ],
+            //       //   ),
+            //       // );
+            //       return Container(
+            //         margin: const EdgeInsets.symmetric(vertical: 8),
+            //         decoration: BoxDecoration(
+            //           color: ThemeColors.silverColor,
+            //           borderRadius: BorderRadius.circular(12),
+            //         ),
+            //         child: ExpansionTile(
+            //           tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            //           trailing: const Icon(
+            //             Icons.keyboard_arrow_down,
+            //             color: ThemeColors.greyColor,
+            //           ),
+            //           leading: const Icon(
+            //             Icons.drag_indicator_sharp,
+            //             color: ThemeColors.blackColor,
+            //           ),
+            //           title: TextField(
+            //             controller: controller,
+            //             decoration: const InputDecoration(
+            //               hintText: "Input Waypoint address",
+            //               border: InputBorder.none,
+            //             ),
+            //           ),
+            //           children: [
+            //             Padding(
+            //               padding: const EdgeInsets.all(12.0),
+            //               child: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   TextField(
+            //                     controller: _nameController,
+            //                     obscureText: true,
+            //                     decoration: const InputDecoration(
+            //                       hintText: "Waypoint name",
+            //                       border: OutlineInputBorder(
+            //                         borderRadius: BorderRadius.all(
+            //                           Radius.circular(12),
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ),
+            //                   TextFormField(
+            //                     controller: _descriptionController,
+            //                     decoration: const InputDecoration(
+            //                       hintText: "Description",
+            //                       border: OutlineInputBorder(
+            //                         borderRadius: BorderRadius.all(
+            //                           Radius.circular(12),
+            //                         ),
+            //                       ),
+            //                     ),
+            //                     maxLines: 3,
+            //                   ),
+            //
+            //                   // TextField(
+            //                   //   decoration: const InputDecoration(
+            //                   //     hintText: "Notes",
+            //                   //     border: OutlineInputBorder(),
+            //                   //   ),
+            //                   // ),
+            //                   const SizedBox(height: 8),
+            //                   GestureDetector(
+            //                     onTap: () {
+            //                       // TODO: ImagePicker
+            //                     },
+            //                     child: DottedBorder(
+            //                       options: RoundedRectDottedBorderOptions(
+            //                         // borderType: BorderType.RRect,
+            //                         radius: Radius.circular(20),
+            //                         dashPattern: [6, 6],
+            //                         color: Colors.grey.shade400,
+            //                         strokeWidth: 2,
+            //                       ),
+            //                       child: Container(
+            //                         height: 150,
+            //                         width: double.infinity,
+            //                         decoration: BoxDecoration(
+            //                           color: Colors.white,
+            //                           borderRadius: BorderRadius.circular(16),
+            //                         ),
+            //                         child: Column(
+            //                           mainAxisAlignment:
+            //                               MainAxisAlignment.center,
+            //                           children: [
+            //                             SvgPicture.asset(
+            //                               'assets/icons/plus.svg',
+            //                               width: 20,
+            //                               height: 20,
+            //                             ),
+            //                             SizedBox(height: 26),
+            //                             Text(
+            //                               "Add Photos",
+            //                               style: TextStyle(
+            //                                 color: ThemeColors.greyColor,
+            //                                 fontWeight: FontWeight.w600,
+            //                                 fontSize: 14,
+            //                               ),
+            //                               textAlign: TextAlign.center,
+            //                             ),
+            //                           ],
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ),
+            //                   const SizedBox(height: 8),
+            //                   Align(
+            //                     alignment: Alignment.center,
+            //                     child: TextButton.icon(
+            //                       onPressed: () => _removeWaypoint(index),
+            //
+            //                       icon: SvgPicture.asset(
+            //                         'assets/icons/plus.svg',
+            //                         width: 20,
+            //                         height: 20,
+            //                       ),
+            //
+            //                       // icon: const Icon(
+            //                       //   Icons.delete,
+            //                       //   color: Colors.red,
+            //                       // ),
+            //                       label: const Text("Delete Waypoint"),
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       );
+            //     }),
+            //
+            //     TextButton.icon(
+            //       onPressed: _addWaypoint,
+            //       icon: const Icon(Icons.add),
+            //       label: const Text("Add Waypoint"),
+            //     ),
+            //     const SizedBox(height: 18),
+            //   ],
+            // ),
             Stack(
               children: [
                 Image.asset(
@@ -636,7 +936,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                         onPressed: () {
                           context.pop();
                         },
-                        child: const Text("Save changes"),
+                        child: const Text("Create"),
                       ),
                     ),
                   ],

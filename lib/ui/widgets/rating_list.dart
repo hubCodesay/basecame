@@ -1,4 +1,4 @@
-// import 'package:basecam/pages/root/widgetes/tag_widget.dart';
+// import 'package:basecam/pages/root/widgets/tag_widget.dart';
 // import 'package:basecam/ui/theme.dart'; // Додано імпорт для ThemeColors
 // import 'package:flutter/material.dart';
 // import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -85,8 +85,8 @@
 // }
 
 
-import 'package:basecam/pages/root/widgetes/tag_widget.dart';
 import 'package:basecam/ui/theme.dart';
+import 'package:basecam/ui/widgets/tag_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 

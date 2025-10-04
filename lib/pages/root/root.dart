@@ -1,3 +1,4 @@
+import 'package:basecam/ui/widgets/navigation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:basecam/pages/root/chats/chats.dart';
@@ -5,7 +6,6 @@ import 'package:basecam/pages/root/events/events.dart';
 import 'package:basecam/pages/root/map/map.dart';
 import 'package:basecam/pages/root/profile/profile.dart';
 import 'package:basecam/pages/root/shop/shop.dart';
-import 'package:basecam/pages/root/widgetes/navigation.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key, required this.child});

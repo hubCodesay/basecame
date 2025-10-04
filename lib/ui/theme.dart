@@ -12,6 +12,7 @@ class ThemeColors {
   static const grey3Color = Color(0xFFD9D9D9);
   static const grey4Color = Color(0xFFE8E8E8);
   static const cloudGreyColor = Color(0xFFD0D0D0);
+  static const redColor50 = Color(0x80FF383C);
   static const primaryColor = ThemeColors.blackColor;
   static const primaryTextColor = ThemeColors.background;
   static const bodyTextColor = ThemeColors.blackColor;

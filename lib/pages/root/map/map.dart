@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:basecam/app_path.dart';
-import 'package:basecam/pages/root/widgetes/product_card_with_nav.dart';
+import 'package:basecam/ui/widgets/filter_button.dart';
+import 'package:basecam/ui/widgets/product_card_with_nav.dart';
+import 'package:basecam/ui/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:basecam/ui/theme.dart';
-import 'package:basecam/pages/root/widgetes/filter_button.dart';
-import 'package:basecam/pages/root/widgetes/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapTab extends StatefulWidget {

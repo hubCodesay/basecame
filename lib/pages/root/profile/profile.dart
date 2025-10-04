@@ -1,3 +1,6 @@
+import 'package:basecam/ui/widgets/event_card.dart';
+import 'package:basecam/ui/widgets/product_card.dart';
+import 'package:basecam/ui/widgets/rating_list.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +14,6 @@ import '../../../models/gear.dart';
 import '../../gear/show_new_gear_modal.dart';
 
 import 'package:basecam/app_path.dart';
-import 'package:basecam/pages/root/widgetes/event_card.dart';
-import 'package:basecam/pages/root/widgetes/product_card.dart';
-import 'package:basecam/pages/root/widgetes/rating_list.dart';
 import 'package:basecam/ui/theme.dart';
 
 class ProfileTab extends StatefulWidget {

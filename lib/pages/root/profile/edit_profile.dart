@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -193,10 +194,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
-                        icon: Image.asset(
-                          'assets/icons/edit.png',
-                          width: 16,
-                          height: 16,
+                        icon: SvgPicture.asset(
+                          'assets/icons/events.svg',
+                          width: 24,
+                          height: 24,
                         ),
                         onPressed: () {
                           // Handle edit picture

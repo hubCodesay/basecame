@@ -1,11 +1,11 @@
-import 'package:basecam/pages/root/widgetes/filter_button.dart';
+import 'package:basecam/ui/widgets/filter_button.dart';
+import 'package:basecam/ui/widgets/product_card.dart';
+import 'package:basecam/ui/widgets/search.dart';
 import 'package:flutter/material.dart';
 
 import 'package:basecam/pages/root/shop/shop_camera.dart';
-import 'package:basecam/pages/root/widgetes/product_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:basecam/models/gear.dart';
-import 'package:basecam/pages/root/widgetes/search.dart';
 import 'package:basecam/pages/gear/show_new_gear_modal.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:flutter_svg/svg.dart';

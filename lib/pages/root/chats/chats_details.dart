@@ -1,4 +1,4 @@
-import 'package:basecam/pages/root/widgetes/send.dart';
+import 'package:basecam/ui/widgets/send.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

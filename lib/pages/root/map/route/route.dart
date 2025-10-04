@@ -1,8 +1,8 @@
-import 'package:basecam/pages/root/widgetes/arrow_back_button.dart';
-import 'package:basecam/pages/root/widgetes/info_box.dart';
-import 'package:basecam/pages/root/widgetes/save_nav_bottom_bar.dart';
-import 'package:basecam/pages/root/widgetes/tag_widget.dart';
-import 'package:basecam/pages/root/widgetes/waypoints.dart';
+import 'package:basecam/ui/widgets/arrow_back_button.dart';
+import 'package:basecam/ui/widgets/info_box.dart';
+import 'package:basecam/ui/widgets/save_nav_bottom_bar.dart';
+import 'package:basecam/ui/widgets/tag_widget.dart';
+import 'package:basecam/ui/widgets/waypoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -472,7 +472,7 @@ class _LocationScreenState extends State<LocationScreen> {
                       SizedBox(width: 10),
                       Expanded(
                         child: InfoBox(
-                          asset: 'assets/icons/vector.svg',
+                          asset: 'assets/icons/edit.svg',
                           text: "12.4 km",
                         ),
                       ),

@@ -1,4 +1,4 @@
-import 'package:basecam/pages/root/widgetes/product_card.dart';
+import 'package:basecam/ui/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 
 class ProductCardNav extends StatelessWidget {
