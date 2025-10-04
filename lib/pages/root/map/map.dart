@@ -23,14 +23,21 @@ class _MapTabState extends State<MapTab> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
-  // markers shown on the map
-  final Set<Marker> _markers = <Marker>{
+  // Static markers (example)
+  final Set<Marker> _staticMarkers = <Marker>{
     Marker(
       markerId: const MarkerId('berlin'),
       position: const LatLng(52.5200, 13.4050),
       infoWindow: const InfoWindow(title: 'Berlin'),
     ),
   };
+
+  // Dynamic markers populated from Firestore
+  final Map<String, Marker> _dynamicMarkers = {};
+
+  // Subscriptions to Firestore streams
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _locationSub;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _routeLocSub;
 
   // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -57,6 +64,7 @@ class _MapTabState extends State<MapTab> {
     super.initState();
     _mapSearchFocusNode.addListener(_onMapSearchFocusChange);
     _mapSearchController.addListener(_onMapSearchTextChange);
+    _subscribeFirestoreMarkers();
   }
 
   @override
@@ -65,6 +73,8 @@ class _MapTabState extends State<MapTab> {
     _mapSearchFocusNode.removeListener(_onMapSearchFocusChange);
     _mapSearchController.removeListener(_onMapSearchTextChange);
     _mapSearchFocusNode.dispose();
+    _locationSub?.cancel();
+    _routeLocSub?.cancel();
     super.dispose();
   }
 
@@ -96,8 +106,107 @@ class _MapTabState extends State<MapTab> {
 
   // Plan new action moved to ShopTab; no handler needed here.
 
+  // ----------------- Helpers: Firestore -> Markers -----------------
+  void _subscribeFirestoreMarkers() {
+    // Listen to 'location' collection
+    _locationSub = FirebaseFirestore.instance
+        .collection('location')
+        .snapshots()
+        .listen(
+          (snapshot) {
+            _updateMarkersFromSnapshot(snapshot, source: 'location');
+          },
+          onError: (e) {
+            // Ignore offline errors; UI remains responsive
+          },
+        );
+
+    // Listen to 'routeLoc' collection
+    _routeLocSub = FirebaseFirestore.instance
+        .collection('routeLoc')
+        .snapshots()
+        .listen(
+          (snapshot) {
+            _updateMarkersFromSnapshot(snapshot, source: 'routeLoc');
+          },
+          onError: (e) {
+            // Ignore offline errors
+          },
+        );
+  }
+
+  void _updateMarkersFromSnapshot(
+    QuerySnapshot<Map<String, dynamic>> snapshot, {
+    required String source,
+  }) {
+    // Build a new set for this source and then merge into _dynamicMarkers
+    final Map<String, Marker> updatedForSource = {};
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final latLng = _extractLatLng(data);
+      if (latLng == null) continue; // no coordinates — skip
+
+      final title = (data['title'] ?? '') as String?;
+      final markerId = MarkerId('$source:${doc.id}');
+      updatedForSource['$source:${doc.id}'] = Marker(
+        markerId: markerId,
+        position: latLng,
+        infoWindow: InfoWindow(title: title?.isNotEmpty == true ? title : null),
+      );
+    }
+
+    setState(() {
+      // Remove old markers for this source
+      _dynamicMarkers.removeWhere((key, _) => key.startsWith('$source:'));
+      // Add updated
+      _dynamicMarkers.addAll(updatedForSource);
+    });
+  }
+
+  LatLng? _extractLatLng(Map<String, dynamic> data) {
+    // 1) GeoPoint under common keys
+    final dynamic geo = data['geo'] ?? data['geopoint'] ?? data['position'];
+    if (geo is GeoPoint) {
+      return LatLng(geo.latitude, geo.longitude);
+    }
+
+    // 2) Nested map with lat/lng
+    final dynamic loc = data['location'] ?? data['loc'] ?? data['coords'];
+    if (loc is Map) {
+      final lat = _toDouble(loc['lat'] ?? loc['latitude']);
+      final lng = _toDouble(loc['lng'] ?? loc['longitude']);
+      if (lat != null && lng != null) return LatLng(lat, lng);
+    }
+
+    // 3) Flat lat/lng fields
+    final lat = _toDouble(data['lat'] ?? data['latitude']);
+    final lng = _toDouble(data['lng'] ?? data['longitude']);
+    if (lat != null && lng != null) return LatLng(lat, lng);
+
+    // 4) Coordinates array [lng, lat] or [lat, lng]
+    final coords = data['coordinates'];
+    if (coords is List && coords.length >= 2) {
+      // Try [lat, lng]
+      final lat1 = _toDouble(coords[0]);
+      final lng1 = _toDouble(coords[1]);
+      if (lat1 != null && lng1 != null) return LatLng(lat1, lng1);
+    }
+
+    return null;
+  }
+
+  double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    if (v is String) {
+      return double.tryParse(v);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Set<Marker> markers = {..._staticMarkers, ..._dynamicMarkers.values};
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -106,7 +215,7 @@ class _MapTabState extends State<MapTab> {
             GoogleMap(
               initialCameraPosition: _kGooglePlex,
               mapType: MapType.normal,
-              markers: _markers,
+              markers: markers,
               zoomControlsEnabled: false,
               myLocationButtonEnabled: false,
               onMapCreated: (GoogleMapController controller) {
@@ -135,7 +244,9 @@ class _MapTabState extends State<MapTab> {
                           ),
                           // Plan new button (visible but intentionally does nothing)
                           TextButton.icon(
-                            onPressed: () => context.push(AppPath.newLocation.path), // intentionally no-op
+                            onPressed: () => context.push(
+                              AppPath.newLocation.path,
+                            ), // intentionally no-op
                             icon: const Icon(
                               Icons.add,
                               color: ThemeColors.blackColor,

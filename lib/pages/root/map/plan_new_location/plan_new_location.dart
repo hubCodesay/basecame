@@ -1,4 +1,3 @@
-import 'package:basecam/ui/widgets/filter_button.dart';
 import 'package:basecam/ui/widgets/info_box_photo.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:basecam/ui/theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PlanNewLocation extends StatefulWidget {
   const PlanNewLocation({super.key});
@@ -31,6 +31,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
   final _routeNameController = TextEditingController();
   final _routeTimingController = TextEditingController();
   final _routeDescriptionController = TextEditingController();
+  final _routeTagController = TextEditingController();
 
   // Стан для вейпоінтів
   List<TextEditingController> waypointAddressControllers = [
@@ -55,6 +56,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     _routeNameController.dispose();
     _routeTimingController.dispose();
     _routeDescriptionController.dispose();
+    _routeTagController.dispose();
     for (var c in waypointAddressControllers) {
       c.dispose();
     }
@@ -100,6 +102,21 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     }
   }
 
+  // Reorder handler keeps address/name/description/expand state in sync
+  void _reorderWaypoint(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex -= 1;
+      final a = waypointAddressControllers.removeAt(oldIndex);
+      final n = waypointNameControllers.removeAt(oldIndex);
+      final d = waypointDescControllers.removeAt(oldIndex);
+      final e = isWaypointExpanded.removeAt(oldIndex);
+      waypointAddressControllers.insert(newIndex, a);
+      waypointNameControllers.insert(newIndex, n);
+      waypointDescControllers.insert(newIndex, d);
+      isWaypointExpanded.insert(newIndex, e);
+    });
+  }
+
   Widget _buildWaypointsList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,14 +126,18 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 12),
-        ListView.builder(
+        ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: waypointAddressControllers.length,
+          buildDefaultDragHandles: false,
+          onReorder: (oldIndex, newIndex) =>
+              _reorderWaypoint(oldIndex, newIndex),
           itemBuilder: (context, index) {
             return Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              padding: const EdgeInsets.all(16),
+              key: ValueKey('wp_$index'),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: ThemeColors.silverColor,
                 borderRadius: BorderRadius.circular(12),
@@ -126,10 +147,19 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                 children: [
                   Row(
                     children: [
-                      SvgPicture.asset(
-                        'assets/icons/indicator.svg',
-                        width: 7,
-                        height: 12,
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: Center(
+                            child: SvgPicture.asset(
+                              'assets/icons/indicator.svg',
+                              width: 7,
+                              height: 12,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -157,15 +187,10 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                       ),
                     ],
                   ),
-
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return SizeTransition(
-                        sizeFactor: animation,
-                        child: child,
-                      );
-                    },
+                    transitionBuilder: (child, animation) =>
+                        SizeTransition(sizeFactor: animation, child: child),
                     child: isWaypointExpanded[index]
                         ? Column(
                             key: ValueKey('expanded_$index'),
@@ -199,9 +224,8 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                                 },
                                 child: DottedBorder(
                                   options: RoundedRectDottedBorderOptions(
-                                    // borderType: BorderType.RRect,
                                     radius: Radius.circular(20),
-                                    dashPattern: [6, 6],
+                                    dashPattern: const [6, 6],
                                     color: ThemeColors.greyColor,
                                     strokeWidth: 2,
                                   ),
@@ -214,22 +238,9 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/icons/plus.svg',
-                                          width: 20,
-                                          height: 20,
-                                        ),
-                                        SizedBox(height: 26),
-                                        Text(
-                                          "Add Photos",
-                                          style: TextStyle(
-                                            color: ThemeColors.greyColor,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
+                                      children: const [
+                                        SizedBox(height: 8),
+                                        // Placeholder for photo add UI
                                       ],
                                     ),
                                   ),
@@ -259,10 +270,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                                 ),
                             ],
                           )
-                        : SizedBox(
-                            key: ValueKey('collapsed_$index'),
-                            height: 8.0,
-                          ),
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -293,7 +301,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     );
   }
 
-  // Функція, що повертає контент для кожного таба
+  // Build content for currently selected tab
   Widget _buildSelectedTabContent() {
     switch (selectedTabIndex) {
       case 0:
@@ -302,7 +310,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
           children: [
             TextField(
               controller: _locationNameController,
-              obscureText: true,
               decoration: const InputDecoration(
                 hintText: "Name of Location",
                 border: OutlineInputBorder(
@@ -311,46 +318,8 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: FilterButton(
-                    onPressed: () {},
-                    rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    useSpacer: true,
-                    backgroundColor: ThemeColors.background,
-                    borderColor: ThemeColors.silverColor,
-                    foregroundColor: ThemeColors.greyColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    borderRadius: 12,
-                    label: const Text("Spot Type"),
-                    dropIcon: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilterButton(
-                    onPressed: () {},
-                    rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    useSpacer: true,
-                    backgroundColor: ThemeColors.background,
-                    borderColor: ThemeColors.silverColor,
-                    foregroundColor: ThemeColors.greyColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    borderRadius: 12,
-                    label: const Text("Activity"),
-                    dropIcon: true,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _locationTimingController,
-              obscureText: true,
               decoration: const InputDecoration(
                 hintText: "Best Timing",
                 border: OutlineInputBorder(
@@ -369,25 +338,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               ),
               maxLines: 3,
             ),
-            const SizedBox(height: 12),
-            FilterButton(
-              onPressed: () {},
-              rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-              useSpacer: true,
-              icon: SvgPicture.asset(
-                'assets/icons/search.svg',
-                width: 24,
-                height: 24,
-              ),
-              backgroundColor: ThemeColors.background,
-              borderColor: ThemeColors.silverColor,
-              foregroundColor: ThemeColors.greyColor,
-              iconColor: ThemeColors.blackColor,
-              fontWeight: FontWeight.w400,
-              borderRadius: 12,
-              dropIcon: false,
-              label: Text("Input address or pick below"),
-            ),
             const SizedBox(height: 18),
             Stack(
               children: [
@@ -396,81 +346,26 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                   height: 143,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 143,
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.map, size: 48, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text(
-                              'Map unavailable',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Enable Maps API or provide API keys',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
                 ),
               ],
             ),
             const SizedBox(height: 24),
             GestureDetector(
-              onTap: () {
-                // TODO: ImagePicker
-              },
+              onTap: () {},
               child: DottedBorder(
                 options: RoundedRectDottedBorderOptions(
-                  // borderType: BorderType.RRect,
                   radius: Radius.circular(20),
-                  dashPattern: [6, 6],
-                  color: Colors.grey.shade400,
+                  dashPattern: const [6, 6],
+                  color: Colors.grey,
                   strokeWidth: 2,
                 ),
                 child: Container(
                   height: 150,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/plus.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      SizedBox(height: 26),
-                      Text(
-                        "Add Photos",
-                        style: TextStyle(
-                          color: ThemeColors.greyColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                  child: const Center(child: Text("Add Photos")),
                 ),
               ),
             ),
@@ -487,20 +382,18 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                 InfoBoxPhoto(),
                 InfoBoxPhoto(),
                 InfoBoxPhoto(),
-                InfoBoxPhoto(),
               ],
             ),
             const SizedBox(height: 10),
           ],
         );
-
       case 1:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _routeNameController,
-              obscureText: true,
+              obscureText: false,
               decoration: const InputDecoration(
                 hintText: "Name of route",
                 border: OutlineInputBorder(
@@ -509,48 +402,10 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: FilterButton(
-                    onPressed: () {},
-                    rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    useSpacer: true,
-                    backgroundColor: ThemeColors.background,
-                    borderColor: ThemeColors.silverColor,
-                    foregroundColor: ThemeColors.greyColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    borderRadius: 12,
-                    label: const Text("Route Type"),
-                    dropIcon: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilterButton(
-                    onPressed: () {},
-                    rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    useSpacer: true,
-                    backgroundColor: ThemeColors.background,
-                    borderColor: ThemeColors.silverColor,
-                    foregroundColor: ThemeColors.greyColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    borderRadius: 12,
-                    label: const Text("Difficulty"),
-                    dropIcon: true,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             TextField(
-              controller: _routeTimingController,
-              obscureText: true,
+              controller: _routeTagController,
               decoration: const InputDecoration(
-                hintText: "Best Timing",
+                hintText: "Tag",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
@@ -576,81 +431,26 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                   height: 143,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 143,
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.map, size: 48, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text(
-                              'Map unavailable',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Enable Maps API or provide API keys',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
                 ),
               ],
             ),
             const SizedBox(height: 24),
             GestureDetector(
-              onTap: () {
-                // TODO: ImagePicker
-              },
+              onTap: () {},
               child: DottedBorder(
                 options: RoundedRectDottedBorderOptions(
-                  // borderType: BorderType.RRect,
                   radius: Radius.circular(20),
-                  dashPattern: [6, 6],
-                  color: Colors.grey.shade400,
+                  dashPattern: const [6, 6],
+                  color: Colors.grey,
                   strokeWidth: 2,
                 ),
                 child: Container(
                   height: 150,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/plus.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      SizedBox(height: 26),
-                      Text(
-                        "Add Photos",
-                        style: TextStyle(
-                          color: ThemeColors.greyColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                  child: const Center(child: Text("Add Photos")),
                 ),
               ),
             ),
@@ -663,27 +463,16 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.65,
               children: const [
-                InfoBoxPhoto(
-                  // asset: 'assets/icons/timer.svg',
-                ),
-                InfoBoxPhoto(
-                  // asset: 'assets/icons/sunrise.svg',
-                ),
-                InfoBoxPhoto(
-                  // asset: 'assets/icons/timer.svg',
-                ),
-                InfoBoxPhoto(
-                  // asset: 'assets/icons/sunrise.svg',
-                ),
-                InfoBoxPhoto(
-                  // asset: 'assets/icons/timer.svg',
-                ),
+                InfoBoxPhoto(),
+                InfoBoxPhoto(),
+                InfoBoxPhoto(),
+                InfoBoxPhoto(),
+                InfoBoxPhoto(),
               ],
             ),
             const SizedBox(height: 10),
           ],
         );
-
       default:
         return const SizedBox.shrink();
     }
@@ -788,9 +577,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: FilledButton(
-                        onPressed: () {
-                          context.pop();
-                        },
+                        onPressed: _onCreatePressed,
                         child: const Text("Create"),
                       ),
                     ),
@@ -802,5 +589,85 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
         ),
       ),
     );
+  }
+}
+
+// --------------- Firestore save logic ---------------
+extension _PlanNewLocationSave on _PlanNewLocationState {
+  Future<void> _onCreatePressed() async {
+    if (selectedTabIndex != 1) {
+      // For now, only Route save is implemented
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Saving for Location is not implemented yet'),
+        ),
+      );
+      return;
+    }
+
+    final title = _routeNameController.text.trim();
+    final description = _routeDescriptionController.text.trim();
+    final tag = _routeTagController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Enter route name')));
+      return;
+    }
+    if (waypointAddressControllers.length < 2) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Add at least 2 waypoints')));
+      return;
+    }
+
+    // Visual feedback
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Saving route...')));
+
+    try {
+      final routeRef = await FirebaseFirestore.instance
+          .collection('routeLoc')
+          .add({
+            'title': title,
+            'description': description,
+            // Store as list for compatibility with map list renderer
+            'tagLoc': tag.isNotEmpty ? [tag] : [],
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+      final batch = FirebaseFirestore.instance.batch();
+      for (int i = 0; i < waypointAddressControllers.length; i++) {
+        final addr = waypointAddressControllers[i].text.trim();
+        final name = waypointNameControllers[i].text.trim();
+        final desc = waypointDescControllers[i].text.trim();
+        final wpRef = routeRef.collection('waypoints').doc();
+        batch.set(wpRef, {
+          'address': addr,
+          'name': name,
+          'description': desc,
+          'order': i,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Route saved')));
+      // Close screen after short delay
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (context.mounted) context.pop();
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Save failed: $e')));
+    }
   }
 }

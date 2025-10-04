@@ -590,7 +590,10 @@ class _LocationScreenState extends State<LocationScreen> {
                                   final data = d.data();
                                   final name =
                                       data['name'] as String? ?? 'Stage';
-                                  final descr = data['descr'] as String? ?? '';
+                                  final descr =
+                                      data['description'] as String? ??
+                                      data['descr'] as String? ??
+                                      '';
                                   final orderVal = data['order'];
                                   final order = (orderVal is int)
                                       ? orderVal
