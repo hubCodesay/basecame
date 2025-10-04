@@ -22,7 +22,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
   final _formKey = GlobalKey<FormState>();
   final String imageUrl = "assets/images/map.png";
 
-
   // Контролери для вкладки "Location"
   final _locationNameController = TextEditingController();
   final _locationTimingController = TextEditingController();
@@ -56,9 +55,15 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     _routeNameController.dispose();
     _routeTimingController.dispose();
     _routeDescriptionController.dispose();
-    for (var c in waypointAddressControllers) { c.dispose(); }
-    for (var c in waypointNameControllers) { c.dispose(); }
-    for (var c in waypointDescControllers) { c.dispose(); }
+    for (var c in waypointAddressControllers) {
+      c.dispose();
+    }
+    for (var c in waypointNameControllers) {
+      c.dispose();
+    }
+    for (var c in waypointDescControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -95,7 +100,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     }
   }
 
-
   Widget _buildWaypointsList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,8 +115,8 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
           itemCount: waypointAddressControllers.length,
           itemBuilder: (context, index) {
             return Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: ThemeColors.silverColor,
                 borderRadius: BorderRadius.circular(12),
@@ -147,109 +151,119 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
                         onPressed: () {
                           setState(() {
                             isWaypointExpanded[index] =
-                            !isWaypointExpanded[index];
+                                !isWaypointExpanded[index];
                           });
                         },
                       ),
                     ],
                   ),
-                  if (isWaypointExpanded[index]) ...[
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: waypointNameControllers[index],
-                      decoration: const InputDecoration(
-                        hintText: "Waypoint name",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: waypointDescControllers[index],
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        hintText: "Description",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
 
-                    GestureDetector(
-                      onTap: () {
-                        // TODO: ImagePicker
-                      },
-                      child: DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          // borderType: BorderType.RRect,
-                          radius: Radius.circular(20),
-                          dashPattern: [6, 6],
-                          color: ThemeColors.greyColor,
-                          strokeWidth: 2,
-                        ),
-                        child: Container(
-                          height: 150,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      );
+                    },
+                    child: isWaypointExpanded[index]
+                        ? Column(
+                            key: ValueKey('expanded_$index'),
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.asset(
-                                'assets/icons/plus.svg',
-                                width: 20,
-                                height: 20,
-                              ),
-                              SizedBox(height: 26),
-                              Text(
-                                "Add Photos",
-                                style: TextStyle(
-                                  color: ThemeColors.greyColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: waypointNameControllers[index],
+                                decoration: const InputDecoration(
+                                  hintText: "Waypoint name",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(12),
+                                    ),
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 8),
+                              TextFormField(
+                                controller: waypointDescControllers[index],
+                                maxLines: 3,
+                                decoration: const InputDecoration(
+                                  hintText: "Description",
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  // TODO: ImagePicker
+                                },
+                                child: DottedBorder(
+                                  options: RoundedRectDottedBorderOptions(
+                                    // borderType: BorderType.RRect,
+                                    radius: Radius.circular(20),
+                                    dashPattern: [6, 6],
+                                    color: ThemeColors.greyColor,
+                                    strokeWidth: 2,
+                                  ),
+                                  child: Container(
+                                    height: 150,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/icons/plus.svg',
+                                          width: 20,
+                                          height: 20,
+                                        ),
+                                        SizedBox(height: 26),
+                                        Text(
+                                          "Add Photos",
+                                          style: TextStyle(
+                                            color: ThemeColors.greyColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (waypointAddressControllers.length > 2)
+                                Center(
+                                  child: TextButton.icon(
+                                    onPressed: () => _removeWaypoint(index),
+                                    icon: SvgPicture.asset(
+                                      'assets/icons/delete.svg',
+                                      width: 20,
+                                      height: 20,
+                                      colorFilter: const ColorFilter.mode(
+                                        ThemeColors.redColor50,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    label: const Text(
+                                      "Delete Waypoint",
+                                      style: TextStyle(
+                                        color: ThemeColors.redColor50,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
+                          )
+                        : SizedBox(
+                            key: ValueKey('collapsed_$index'),
+                            height: 8.0,
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (waypointAddressControllers.length > 2)
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () => _removeWaypoint(index),
-                          icon: SvgPicture.asset(
-                            'assets/icons/delete.svg',
-                            width: 20,
-                            height: 20,
-                            colorFilter: const ColorFilter.mode(ThemeColors.redColor50, BlendMode.srcIn),
-                          ),
-                          label: const Text(
-                            "Delete Waypoint",
-                            style: TextStyle(color: ThemeColors.redColor50),
-                          ),
-                        ),
-                      ),
-                  ]
-                  // --- НОВИЙ БЛОК: ПОКАЗУЄТЬСЯ В ЗГОРНУТОМУ СТАНІ ---
-                  else ...[
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 40),
-                      child: Text(
-                        // Показуємо назву, якщо вона є, інакше опис, інакше нічого
-                        waypointNameControllers[index].text.isNotEmpty
-                            ? waypointNameControllers[index].text
-                            : waypointDescControllers[index].text,
-                        style: const TextStyle(
-                          color: ThemeColors.greyColor,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ),
-                  ]
+                  ),
                 ],
               ),
             );
@@ -262,7 +276,10 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               'assets/icons/plus.svg',
               width: 10,
               height: 10,
-              colorFilter: const ColorFilter.mode(ThemeColors.greyColor, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                ThemeColors.greyColor,
+                BlendMode.srcIn,
+              ),
             ),
             label: const Text("Add Waypoint"),
             style: TextButton.styleFrom(
@@ -275,7 +292,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
       ],
     );
   }
-
 
   // Функція, що повертає контент для кожного таба
   Widget _buildSelectedTabContent() {
@@ -667,20 +683,6 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
             const SizedBox(height: 10),
           ],
         );
-    // Залишаємо заглушку для другої вкладки
-    // return ListView.builder(
-    //   shrinkWrap: true,
-    //   physics: const NeverScrollableScrollPhysics(),
-    //   itemCount: 6,
-    //   itemBuilder: (context, index) {
-    //     return Padding(
-    //       padding: EdgeInsets.only(
-    //         bottom: index == 5 ? 0 : itemAxisSpacing,
-    //       ),
-    //       child: const Text("Content for Locations tab"),
-    //     );
-    //   },
-    // );
 
       default:
         return const SizedBox.shrink();
