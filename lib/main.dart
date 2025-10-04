@@ -81,15 +81,11 @@ Future<FirebaseApp> _initFirebase() async {
     // setup please run `flutterfire configure` which will generate
     // `lib/firebase_options.dart` with per-platform values.
     const fallbackOptions = FirebaseOptions(
-      apiKey: 'AIzaSyDXxRTQiteU84k4ZMKI9_EePI2ZYIIw5BI',
-      // Note: the following appId is the iOS App ID you provided. It works
-      // as a fallback identifier; the FlutterFire CLI should generate the
-      // correct per-platform appIds when available.
-      appId: '1:340144437283:ios:17c08603b970ae1cec1996',
-      messagingSenderId: '340144437283',
-      projectId: 'basecambd-3b3be',
-      // storageBucket commonly follows the pattern <projectId>.appspot.com
-      storageBucket: 'basecambd-3b3be.appspot.com',
+      apiKey: 'AIzaSyChysdZYY0yQwwdCzVi0eDCNwpnzv9ntNU',
+      appId: '1:907186469751:ios:52b4ac3a5b5e64102e7f72',
+      messagingSenderId: '907186469751',
+      projectId: 'basecame-d4d15',
+      storageBucket: 'basecame-d4d15.firebasestorage.app',
     );
 
     // Name omitted to create the default app instance.

@@ -5,6 +5,7 @@ import 'package:basecam/app_path.dart';
 import 'package:basecam/ui/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -174,6 +175,44 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// Tries to fetch the user document from Firestore.
+  /// Returns:
+  /// - DocumentSnapshot if fetched.
+  /// - null if offline/unavailable after a quick network enable + retry.
+  Future<DocumentSnapshot<Map<String, dynamic>>?> _safeGetUserDoc(
+    String uid,
+  ) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      return doc;
+    } on FirebaseException catch (e) {
+      // Handle common offline case gracefully
+      if (e.code == 'unavailable' ||
+          e.message?.contains('client is offline') == true) {
+        debugPrint(
+          'Firestore unavailable/offline. Enabling network and retrying once...',
+        );
+        try {
+          await FirebaseFirestore.instance.enableNetwork();
+          // Small delay to allow network stack to come up
+          await Future.delayed(const Duration(milliseconds: 200));
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+          return doc;
+        } catch (_) {
+          // Still offline/unavailable — return null to allow app to proceed
+          return null;
+        }
+      }
+      rethrow;
+    }
+  }
+
   Widget _socialButton(Widget child, VoidCallback onTap) {
     return Material(
       color: ThemeColors.grey2Color,
@@ -205,11 +244,11 @@ class _LoginPageState extends State<LoginPage> {
       final uid = cred.user?.uid;
       if (!mounted) return;
       if (uid != null) {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .get();
-        if (!doc.exists) {
+        final doc = await _safeGetUserDoc(uid);
+        if (doc == null) {
+          // Offline or transient error, continue to app and let it recover/sync later
+          debugPrint('Proceeding without user doc due to offline/unavailable.');
+        } else if (!doc.exists) {
           // user signed in but no user document — offer to create
           _showUserNotFoundDialog(email);
           return;
@@ -276,11 +315,12 @@ class _LoginPageState extends State<LoginPage> {
         final uid = cred.user?.uid;
         if (!mounted) return;
         if (uid != null) {
-          final doc = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(uid)
-              .get();
-          if (!doc.exists) {
+          final doc = await _safeGetUserDoc(uid);
+          if (doc == null) {
+            debugPrint(
+              'Proceeding without user doc due to offline/unavailable.',
+            );
+          } else if (!doc.exists) {
             _showUserNotFoundDialog(email);
             return;
           }

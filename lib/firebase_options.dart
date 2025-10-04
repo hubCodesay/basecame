@@ -13,14 +13,13 @@ class DefaultFirebaseOptions {
     // Web-specific options (useful for `flutter run -d chrome`).
     if (kIsWeb) {
       return const FirebaseOptions(
-        apiKey: 'AIzaSyDXxRTQiteU84k4ZMKI9_EePI2ZYIIw5BI',
-        authDomain: 'basecambd-3b3be.firebaseapp.com',
-        projectId: 'basecambd-3b3be',
-        storageBucket: 'basecambd-3b3be.appspot.com',
-        messagingSenderId: '340144437283',
-        appId:
-            '1:340144437283:web:REPLACE', // replace with your web appId if available
-        measurementId: 'G-REPLACE', // optional
+        apiKey: 'AIzaSyB-SnKUamlBC7QM67JEaeuiIgXdz-89eyk',
+        authDomain: 'basecame-d4d15.firebaseapp.com',
+        projectId: 'basecame-d4d15',
+        storageBucket: 'basecame-d4d15.firebasestorage.app',
+        messagingSenderId: '907186469751',
+        appId: '1:907186469751:web:REPLACE',
+        measurementId: 'G-REPLACE',
       );
     }
 
@@ -29,21 +28,21 @@ class DefaultFirebaseOptions {
     // value.
     if (Platform.isIOS || Platform.isMacOS) {
       return const FirebaseOptions(
-        apiKey: 'AIzaSyDXxRTQiteU84k4ZMKI9_EePI2ZYIIw5BI',
-        appId: '1:340144437283:ios:17c08603b970ae1cec1996',
-        messagingSenderId: '340144437283',
-        projectId: 'basecambd-3b3be',
-        storageBucket: 'basecambd-3b3be.appspot.com',
+        apiKey: 'AIzaSyChysdZYY0yQwwdCzVi0eDCNwpnzv9ntNU',
+        appId: '1:907186469751:ios:52b4ac3a5b5e64102e7f72',
+        messagingSenderId: '907186469751',
+        projectId: 'basecame-d4d15',
+        storageBucket: 'basecame-d4d15.firebasestorage.app',
       );
     }
 
     // Android / fallback options. Replace androidAppId if you have it.
     return const FirebaseOptions(
-      apiKey: 'AIzaSyDXxRTQiteU84k4ZMKI9_EePI2ZYIIw5BI',
-      appId: '1:340144437283:android:REPLACE',
-      messagingSenderId: '340144437283',
-      projectId: 'basecambd-3b3be',
-      storageBucket: 'basecambd-3b3be.appspot.com',
+      apiKey: 'AIzaSyChysdZYY0yQwwdCzVi0eDCNwpnzv9ntNU',
+      appId: '1:907186469751:android:REPLACE',
+      messagingSenderId: '907186469751',
+      projectId: 'basecame-d4d15',
+      storageBucket: 'basecame-d4d15.firebasestorage.app',
     );
   }
 }
