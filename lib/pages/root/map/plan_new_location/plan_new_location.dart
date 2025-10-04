@@ -46,7 +46,7 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
     TextEditingController(),
     TextEditingController(),
   ];
-  List<bool> isWaypointExpanded = [true, false];
+  List<bool> isWaypointExpanded = [false, false];
 
   @override
   void dispose() {
