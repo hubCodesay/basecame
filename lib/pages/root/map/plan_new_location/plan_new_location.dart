@@ -1,4 +1,5 @@
 import 'package:basecam/ui/widgets/info_box_photo.dart';
+import 'package:basecam/ui/widgets/single_photo_picker.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -350,24 +351,10 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               ],
             ),
             const SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {},
-              child: DottedBorder(
-                options: RoundedRectDottedBorderOptions(
-                  radius: Radius.circular(20),
-                  dashPattern: const [6, 6],
-                  color: Colors.grey,
-                  strokeWidth: 2,
-                ),
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(child: Text("Add Photos")),
-                ),
-              ),
+            SinglePhotoPicker(
+              onChanged: (file) {
+                // зберегти у роути setState(() => _imageFile = file);
+              },
             ),
             const SizedBox(height: 10),
             GridView.count(
@@ -435,24 +422,10 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
               ],
             ),
             const SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {},
-              child: DottedBorder(
-                options: RoundedRectDottedBorderOptions(
-                  radius: Radius.circular(20),
-                  dashPattern: const [6, 6],
-                  color: Colors.grey,
-                  strokeWidth: 2,
-                ),
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(child: Text("Add Photos")),
-                ),
-              ),
+            SinglePhotoPicker(
+              onChanged: (file) {
+                // зберегти у роути setState(() => _imageFile = file);
+              },
             ),
             const SizedBox(height: 10),
             GridView.count(
