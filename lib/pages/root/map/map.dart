@@ -38,6 +38,7 @@ class _MapTabState extends State<MapTab> {
   // Subscriptions to Firestore streams
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _locationSub;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _routeLocSub;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _locationMapsSub;
 
   // ignore: unused_field
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -75,6 +76,7 @@ class _MapTabState extends State<MapTab> {
     _mapSearchFocusNode.dispose();
     _locationSub?.cancel();
     _routeLocSub?.cancel();
+    _locationMapsSub?.cancel();
     super.dispose();
   }
 
@@ -133,6 +135,19 @@ class _MapTabState extends State<MapTab> {
             // Ignore offline errors
           },
         );
+
+    // Listen to 'locationMaps' collection (new posts created from Plan New Location)
+    _locationMapsSub = FirebaseFirestore.instance
+        .collection('locationMaps')
+        .snapshots()
+        .listen(
+          (snapshot) {
+            _updateMarkersFromSnapshot(snapshot, source: 'locationMaps');
+          },
+          onError: (e) {
+            // Ignore offline errors
+          },
+        );
   }
 
   void _updateMarkersFromSnapshot(
@@ -146,12 +161,29 @@ class _MapTabState extends State<MapTab> {
       final latLng = _extractLatLng(data);
       if (latLng == null) continue; // no coordinates — skip
 
-      final title = (data['title'] ?? '') as String?;
+      final title = (data['title'] ?? data['name'] ?? '') as String?;
+      // Try a few common tag field names: 'tag', 'tagLoc', 'tags'
+      String? tag;
+      if (data['tag'] is String) {
+        tag = data['tag'] as String;
+      } else if (data['tagLoc'] is String) {
+        tag = data['tagLoc'] as String;
+      } else if (data['tags'] is String) {
+        tag = data['tags'] as String;
+      } else if (data['tagLoc'] is List && data['tagLoc'].isNotEmpty) {
+        tag = (data['tagLoc'][0] ?? '') as String?;
+      } else if (data['tags'] is List && data['tags'].isNotEmpty) {
+        tag = (data['tags'][0] ?? '') as String?;
+      }
+
       final markerId = MarkerId('$source:${doc.id}');
       updatedForSource['$source:${doc.id}'] = Marker(
         markerId: markerId,
         position: latLng,
-        infoWindow: InfoWindow(title: title?.isNotEmpty == true ? title : null),
+        infoWindow: InfoWindow(
+          title: title?.isNotEmpty == true ? title : null,
+          snippet: tag?.isNotEmpty == true ? tag : null,
+        ),
       );
     }
 
@@ -380,134 +412,156 @@ class _MapTabState extends State<MapTab> {
                             .snapshots(),
                         builder: (context, routeSnapshot) {
                           final routeDocs = routeSnapshot.data?.docs ?? [];
+                          return StreamBuilder<
+                            QuerySnapshot<Map<String, dynamic>>
+                          >(
+                            stream: FirebaseFirestore.instance
+                                .collection('locationMaps')
+                                .orderBy('createdAt', descending: true)
+                                .snapshots(),
+                            builder: (context, locMapsSnapshot) {
+                              final locMapsDocs =
+                                  locMapsSnapshot.data?.docs ?? [];
 
-                          // combine both lists and keep source info
-                          final combined = <Map<String, Object>>[];
-                          combined.addAll(
-                            locationDocs.map(
-                              (d) => {'doc': d, 'source': 'location'},
-                            ),
-                          );
-                          combined.addAll(
-                            routeDocs.map(
-                              (d) => {'doc': d, 'source': 'routeLoc'},
-                            ),
-                          );
-
-                          // map to pairs with createdAt DateTime for sorting and keep source
-                          final items = combined.map((entry) {
-                            final doc =
-                                entry['doc']
-                                    as QueryDocumentSnapshot<
-                                      Map<String, dynamic>
-                                    >;
-                            final data = doc.data();
-                            final createdRaw = data['createdAt'];
-                            DateTime created;
-                            if (createdRaw is Timestamp) {
-                              created = createdRaw.toDate();
-                            } else if (createdRaw is int) {
-                              created = DateTime.fromMillisecondsSinceEpoch(
-                                createdRaw,
+                              // combine all lists and keep source info
+                              final combined = <Map<String, Object>>[];
+                              combined.addAll(
+                                locationDocs.map(
+                                  (d) => {'doc': d, 'source': 'location'},
+                                ),
                               );
-                            } else {
-                              created = DateTime.fromMillisecondsSinceEpoch(0);
-                            }
-                            return {
-                              'doc': doc,
-                              'created': created,
-                              'source': entry['source'],
-                            };
-                          }).toList();
+                              combined.addAll(
+                                routeDocs.map(
+                                  (d) => {'doc': d, 'source': 'routeLoc'},
+                                ),
+                              );
+                              combined.addAll(
+                                locMapsDocs.map(
+                                  (d) => {'doc': d, 'source': 'locationMaps'},
+                                ),
+                              );
 
-                          // sort newest first
-                          items.sort(
-                            (a, b) => (b['created'] as DateTime).compareTo(
-                              a['created'] as DateTime,
-                            ),
-                          );
-
-                          return ListView.builder(
-                            controller: scrollController,
-                            itemCount: 2 + items.length,
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                // шеврон
-                                return Center(
-                                  child: Container(
-                                    width: 40,
-                                    height: 5,
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade300,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                );
-                              } else if (index == 1) {
-                                // заголовок
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 16,
-                                    right: 16,
-                                    bottom: 8,
-                                  ),
-                                  child: Text(
-                                    "Nearby Locations",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge,
-                                  ),
-                                );
-                              } else {
+                              // map to pairs with createdAt DateTime for sorting and keep source
+                              final items = combined.map((entry) {
                                 final doc =
-                                    items[index - 2]['doc']
+                                    entry['doc']
                                         as QueryDocumentSnapshot<
                                           Map<String, dynamic>
                                         >;
                                 final data = doc.data();
-                                // Use the Firestore document id to navigate to details
-                                final id = doc.id;
-                                final title = data['title'] ?? '';
-                                final created =
-                                    items[index - 2]['created'] as DateTime;
-                                final timestampText =
-                                    created.millisecondsSinceEpoch > 0
-                                    ? created.toString()
-                                    : '';
+                                final createdRaw = data['createdAt'];
+                                DateTime created;
+                                if (createdRaw is Timestamp) {
+                                  created = createdRaw.toDate();
+                                } else if (createdRaw is int) {
+                                  created = DateTime.fromMillisecondsSinceEpoch(
+                                    createdRaw,
+                                  );
+                                } else {
+                                  created = DateTime.fromMillisecondsSinceEpoch(
+                                    0,
+                                  );
+                                }
+                                return {
+                                  'doc': doc,
+                                  'created': created,
+                                  'source': entry['source'],
+                                };
+                              }).toList();
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 16,
-                                    left: 16,
-                                    right: 16,
-                                  ),
-                                  child: ProductCardNav(
-                                    onTap: () {
-                                      final source =
-                                          items[index - 2]['source']
-                                              as String? ??
-                                          'location';
-                                      final target = (source == 'routeLoc')
-                                          ? '${AppPath.location.path}/$id' // routeLoc -> open location.dart
-                                          : '${AppPath.locationDay.path}/$id'; // location -> open location_day.dart
-                                      context.push(target);
-                                    },
-                                    productName: title,
-                                    price: '',
-                                    tag:
-                                        (data['tagLoc'] is List &&
-                                            data['tagLoc'].isNotEmpty)
-                                        ? (data['tagLoc'][0] ?? '')
-                                        : '',
-                                    location: '',
-                                    timestamp: timestampText,
-                                    imageUrl: data['photoLoc'] ?? '',
-                                  ),
-                                );
-                              }
+                              // sort newest first
+                              items.sort(
+                                (a, b) => (b['created'] as DateTime).compareTo(
+                                  a['created'] as DateTime,
+                                ),
+                              );
+
+                              return ListView.builder(
+                                controller: scrollController,
+                                itemCount: 2 + items.length,
+                                itemBuilder: (context, index) {
+                                  if (index == 0) {
+                                    // шеврон
+                                    return Center(
+                                      child: Container(
+                                        width: 40,
+                                        height: 5,
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade300,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else if (index == 1) {
+                                    // заголовок
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        bottom: 8,
+                                      ),
+                                      child: Text(
+                                        "Nearby Locations",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleLarge,
+                                      ),
+                                    );
+                                  } else {
+                                    final doc =
+                                        items[index - 2]['doc']
+                                            as QueryDocumentSnapshot<
+                                              Map<String, dynamic>
+                                            >;
+                                    final data = doc.data();
+                                    // Use the Firestore document id to navigate to details
+                                    final id = doc.id;
+                                    final title =
+                                        data['title'] ?? data['name'] ?? '';
+                                    final created =
+                                        items[index - 2]['created'] as DateTime;
+                                    final timestampText =
+                                        created.millisecondsSinceEpoch > 0
+                                        ? created.toString()
+                                        : '';
+
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 16,
+                                        left: 16,
+                                        right: 16,
+                                      ),
+                                      child: ProductCardNav(
+                                        onTap: () {
+                                          final source =
+                                              items[index - 2]['source']
+                                                  as String? ??
+                                              'location';
+                                          final target = (source == 'routeLoc')
+                                              ? '${AppPath.location.path}/$id' // routeLoc -> open location.dart
+                                              : '${AppPath.locationDay.path}/$id'; // location -> open location_day.dart
+                                          context.push(target);
+                                        },
+                                        productName: title,
+                                        price: '',
+                                        tag:
+                                            (data['tagLoc'] is List &&
+                                                data['tagLoc'].isNotEmpty)
+                                            ? (data['tagLoc'][0] ?? '')
+                                            : '',
+                                        location: '',
+                                        timestamp: timestampText,
+                                        imageUrl: data['photoLoc'] ?? '',
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
                             },
                           );
                         },
