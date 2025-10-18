@@ -9,6 +9,13 @@ import 'package:go_router/go_router.dart';
 
 import 'package:basecam/ui/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Image picker, storage and platform checks used by the inline upload helper
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class PlanNewLocation extends StatefulWidget {
   const PlanNewLocation({super.key});
@@ -568,15 +575,73 @@ class _PlanNewLocationState extends State<PlanNewLocation> {
 // --------------- Firestore save logic ---------------
 extension _PlanNewLocationSave on _PlanNewLocationState {
   Future<void> _onCreatePressed() async {
-    if (selectedTabIndex != 1) {
-      // For now, only Route save is implemented
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Saving for Location is not implemented yet'),
-        ),
-      );
-      return;
+    // Handle Location save (tab 0)
+    if (selectedTabIndex == 0) {
+      final name = _locationNameController.text.trim();
+      final timing = _locationTimingController.text.trim();
+      final description = _locationDescriptionController.text.trim();
+
+      if (name.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Enter location name')));
+        return;
+      }
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Saving location...')));
+
+      try {
+        // Ensure auth
+        if (FirebaseAuth.instance.currentUser == null) {
+          await FirebaseAuth.instance.signInAnonymously();
+        }
+        final uid = FirebaseAuth.instance.currentUser!.uid;
+
+        // Create new location doc with generated id
+        final locRef = FirebaseFirestore.instance
+            .collection('locationMaps')
+            .doc();
+
+        final data = {
+          'name': name,
+          'timing': timing,
+          'description': description,
+          'ownerUid': uid,
+          'createdAt': FieldValue.serverTimestamp(),
+        };
+
+        // Write data (merge=false -> replace current if exists). Using set without merge
+        // to ensure the doc reflects the new payload. If you prefer merge, use SetOptions(merge: true).
+        await locRef.set(data);
+
+        // Photo for location is optional. The UI provides a map/placeholding
+        // area where a user can later add a photo. We do NOT force a picker
+        // here to keep creation fast and optional for users.
+        // If you want to offer immediate upload, call
+        // `_pickAndUploadPhotoToCollection('locationMaps', locRef.id)` on user action.
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Location saved')));
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (context.mounted) context.pop();
+        return;
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Save failed: $e')));
+        return;
+      }
     }
+
+    // --- Route save (existing logic) ---
 
     final title = _routeNameController.text.trim();
     final description = _routeDescriptionController.text.trim();
@@ -601,13 +666,19 @@ extension _PlanNewLocationSave on _PlanNewLocationState {
     ).showSnackBar(const SnackBar(content: Text('Saving route...')));
 
     try {
+      // Ensure the user is authenticated (for ownerUid and Storage path uid)
+      if (FirebaseAuth.instance.currentUser == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+
       final routeRef = await FirebaseFirestore.instance
-          .collection('routeLoc')
+          .collection('routes')
           .add({
             'title': title,
             'description': description,
             // Store as list for compatibility with map list renderer
             'tagLoc': tag.isNotEmpty ? [tag] : [],
+            'ownerUid': FirebaseAuth.instance.currentUser!.uid,
             'createdAt': FieldValue.serverTimestamp(),
           });
 
@@ -627,6 +698,28 @@ extension _PlanNewLocationSave on _PlanNewLocationState {
       }
       await batch.commit();
 
+      // Optional: right after creating the route+waypoints, offer to pick
+      // and upload a route cover photo. The function will open the gallery,
+      // upload to Storage (routes/{uid}/{routeId}/{ts}.jpg), then write
+      // the download URL into route document photos[] field.
+      try {
+        final url = await _pickAndUploadPhotoToCollection(
+          'routes',
+          routeRef.id,
+        );
+        if (url != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Photo uploaded successfully')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Photo upload failed: $e')));
+        }
+      }
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(
@@ -641,6 +734,70 @@ extension _PlanNewLocationSave on _PlanNewLocationState {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Save failed: $e')));
+    }
+  }
+}
+
+// Local helper: pick image from gallery and upload to Firebase Storage, then
+// save the download URL into Firestore under collection/docId -> photos[]
+extension _PlanNewLocationPhoto on _PlanNewLocationState {
+  Future<String?> _pickAndUploadPhotoToCollection(
+    String collection,
+    String docId,
+  ) async {
+    // Keep this helper self-contained to avoid depending on external services
+    // file which may be missing. Uses image_picker and firebase_storage
+    try {
+      // lazy import-like usage: create ImagePicker here
+      final picker = ImagePicker();
+      final xfile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (xfile == null) return null;
+
+      // Ensure auth
+      if (FirebaseAuth.instance.currentUser == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      final ts = DateTime.now().millisecondsSinceEpoch.toString();
+      final storagePath = '$collection/$uid/$docId/$ts.jpg';
+      final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+      UploadTask uploadTask;
+      if (kIsWeb) {
+        final bytes = await xfile.readAsBytes();
+        uploadTask = ref.putData(
+          bytes,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
+      } else {
+        final file = File(xfile.path);
+        uploadTask = ref.putFile(
+          file,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
+      }
+
+      final sub = uploadTask.snapshotEvents.listen((s) {
+        // Optionally, you can surface progress to UI by setting state here
+      });
+      final snap = await uploadTask.whenComplete(() {});
+      await sub.cancel();
+
+      final url = await snap.ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection(collection).doc(docId).set({
+        'photos': FieldValue.arrayUnion([url]),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'ownerUid': FirebaseAuth.instance.currentUser!.uid,
+      }, SetOptions(merge: true));
+
+      return url;
+    } catch (e) {
+      rethrow;
     }
   }
 }

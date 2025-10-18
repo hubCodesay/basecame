@@ -1216,12 +1216,19 @@ PODS:
   - Firebase/Firestore (12.2.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 12.2.0)
+  - Firebase/Storage (12.2.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 12.2.0)
   - firebase_auth (6.1.0):
     - Firebase/Auth (= 12.2.0)
     - firebase_core
     - Flutter
   - firebase_core (4.1.1):
     - Firebase/CoreOnly (= 12.2.0)
+    - Flutter
+  - firebase_storage (13.0.2):
+    - Firebase/Storage (= 12.2.0)
+    - firebase_core
     - Flutter
   - FirebaseAppCheckInterop (12.2.0)
   - FirebaseAuth (12.2.0):
@@ -1263,6 +1270,13 @@ PODS:
     - leveldb-library (~> 1.22)
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (12.2.0)
+  - FirebaseStorage (12.2.0):
+    - FirebaseAppCheckInterop (~> 12.2.0)
+    - FirebaseAuthInterop (~> 12.2.0)
+    - FirebaseCore (~> 12.2.0)
+    - FirebaseCoreExtension (~> 12.2.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GTMSessionFetcher/Core (< 6.0, >= 3.4)
   - Flutter (1.0.0)
   - Google-Maps-iOS-Utils (6.1.0):
     - GoogleMaps (~> 9.0)
@@ -1422,6 +1436,7 @@ DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
@@ -1443,6 +1458,7 @@ SPEC REPOS:
     - FirebaseFirestore
     - FirebaseFirestoreInternal
     - FirebaseSharedSwift
+    - FirebaseStorage
     - Google-Maps-iOS-Utils
     - GoogleMaps
     - GoogleSignIn
@@ -1463,6 +1479,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_storage:
+    :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
   google_maps_flutter_ios:
@@ -1481,6 +1499,7 @@ SPEC CHECKSUMS:
   Firebase: 26f6f8d460603af3df970ad505b16b15f5e2e9a1
   firebase_auth: 069b05a861a7c2f7a73112dd616a49a40f35ae52
   firebase_core: dfc4bd142bee4bc53a5d482397ca322c2dd3165d
+  firebase_storage: 7d98547fc12ce48731db5abab2ed4e6c1c40b68c
   FirebaseAppCheckInterop: a1b2598c64c5a8c42fd6f6a1c3d0938ae4324678
   FirebaseAuth: 059c11702bdb759bb49b6c7ec6ff67abf21f39c4
   FirebaseAuthInterop: 217702acd4cc6baa98ba9d6c054532e0de0b8a16
@@ -1490,6 +1509,7 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 2baa1360623e942007726627653d43a5bc618ba8
   FirebaseFirestoreInternal: 6506aef21ac270bf137c34cd7283723d930eddb0
   FirebaseSharedSwift: 52d868d4c269fcb4e4e1310c548435a9c1f46e25
+  FirebaseStorage: f1578d57e1fd3683fc05f5d4d7b24b7490b321ac
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   Google-Maps-iOS-Utils: 0a484b05ed21d88c9f9ebbacb007956edd508a96
   google_maps_flutter_ios: 0291eb2aa252298a769b04d075e4a9d747ff7264
